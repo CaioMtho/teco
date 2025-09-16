@@ -31,12 +31,14 @@ export default function RootLayout({
       >
         <header className="w-auto">
           <div className="px-5 shadow-sm flex">
+              <Link href="/">
                <Image
                   src="/teco-logo-escuro-sem-fundo.png"
                   alt="logo"
                   width={100}
                   height={100}
                 />
+              </Link>
               <Image
                src="/search-icon.png"
                   alt="icone"
@@ -45,16 +47,18 @@ export default function RootLayout({
                   height={64}
                   />
               <input type="search" className="h-10 my-auto bg-gray-300 border-0 rounded-lg " name="search"></input>
-              <Image 
+              <Link href="/dashboard" className="my-auto mx-12">
+                <Image 
                   src="/user-icon.png"
                   alt="icone"
-                  className="my-auto mx-12 w-12 h-12"
+                  className=" w-12 h-12"
                   width={64}
                   height={64}
                   />
+              </Link>
           </div>
           
-          <nav className="flex space-x-4 pl-9 py-3">
+          <nav className="flex space-x-4 justify-center mx-auto pl-9 py-3">
             <Link href="/">inicio</Link>
             <Link href="/about">sobre</Link>  
             <Link href="/dashboard">dashboard</Link>  
@@ -68,7 +72,7 @@ export default function RootLayout({
               <Link href="/about" className="px-2 border-r">sobre</Link>  
               <Link href="/dashboard" className="px-2">dashboard</Link>  
             </div>
-            <a href="" className="text-center">repositório do github</a>
+            <a href="https://github.com/CaioMtho/teco" target="_blank" className="text-center">repositório do github</a>
 
           </div>
           
