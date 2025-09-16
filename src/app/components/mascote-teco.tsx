@@ -1,9 +1,10 @@
 'use client';
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 export default function MascoteTeco(): React.JSX.Element {
   const rafRef = useRef<number | null>(null);
   const svgRef = useRef<SVGSVGElement>(null);
+  const [isBlinking, setIsBlinking] = useState(false);
 
   useEffect(() => {
     const svg = svgRef.current;
@@ -76,8 +77,10 @@ export default function MascoteTeco(): React.JSX.Element {
           offsetYR = normalizedYR * clampedDistR;
         }
 
-        eyeLeft.style.transform = `translate(${offsetXL.toFixed(2)}px, ${-offsetYL.toFixed(2)}px)`;
-        eyeRight.style.transform = `translate(${offsetXR.toFixed(2)}px, ${-offsetYR.toFixed(2)}px)`;
+        if (!isBlinking) {
+          eyeLeft.style.transform = `translate(${offsetXL.toFixed(2)}px, ${-offsetYL.toFixed(2)}px)`;
+          eyeRight.style.transform = `translate(${offsetXR.toFixed(2)}px, ${-offsetYR.toFixed(2)}px)`;
+        }
 
       } catch (error) {
         console.warn('Erro na atualização dos olhos:', error);
@@ -119,10 +122,23 @@ export default function MascoteTeco(): React.JSX.Element {
         rafRef.current = null;
       }
     };
-  }, []);
+  }, [isBlinking]);
+
+  const handleClick = () => {
+    if (isBlinking) return;
+    
+    setIsBlinking(true);
+    
+    setTimeout(() => {
+      setIsBlinking(false);
+    }, 400);
+  };
 
   return (
-    <div className="w-[300px] h-[300px] mx-auto">
+    <div 
+      className="w-[300px] h-[300px] mx-auto cursor-pointer" 
+      onClick={handleClick}
+    >
       <svg
         ref={svgRef}
         id="mascote-svg"
@@ -132,6 +148,7 @@ export default function MascoteTeco(): React.JSX.Element {
         preserveAspectRatio="xMidYMid meet"
       >
         <g transform="translate(0,5000) scale(1,-1)" fill="#000000" stroke="none">
+          {/* Corpo */}
           <path d="M2360 3933 c-236 -37 -400 -100 -565 -218 -260 -185 -434 -452 -499
 -767 -21 -101 -21 -326 -1 -444 80 -454 426 -837 869 -961 l99 -28 19 -45
 c167 -391 177 -408 233 -394 30 7 56 57 166 317 29 70 59 127 66 127 7 0 57
@@ -145,15 +162,35 @@ c167 -391 177 -408 233 -394 30 7 56 57 166 317 29 70 59 127 66 127 7 0 57
 330 18 427 0z" />
 
           {/* Olho esquerdo */}
-          <g id="eye-left" style={{ transformOrigin: 'center', transition: 'transform 0.1s ease-out' }}>
-            <path d="M1828 3050 c-57 -31 -82 -74 -86 -150 -3 -55 0 -70 20 -100 97 -143
-328 -78 328 91 0 134 -143 221 -262 159z" />
+          <g id="eye-left" style={{ 
+            transformOrigin: 'center', 
+            transition: isBlinking ? 'none' : 'transform 0.1s ease-out'
+          }}>
+            <path 
+              d="M1828 3050 c-57 -31 -82 -74 -86 -150 -3 -55 0 -70 20 -100 97 -143
+328 -78 328 91 0 134 -143 221 -262 159z" 
+              style={{
+                transform: isBlinking ? 'scaleY(0.1)' : 'scaleY(1)',
+                transition: 'transform 0.2s ease-in-out',
+                transformOrigin: 'center'
+              }}
+            />
           </g>
 
           {/* Olho direito */}
-          <g id="eye-right" style={{ transformOrigin: 'center', transition: 'transform 0.1s ease-out' }}>
-            <path d="M2958 3050 c-56 -30 -82 -73 -86 -146 -3 -43 1 -70 12 -92 62 -120
-250 -122 313 -2 38 71 28 147 -25 204 -54 57 -144 72 -214 36z" />
+          <g id="eye-right" style={{ 
+            transformOrigin: 'center', 
+            transition: isBlinking ? 'none' : 'transform 0.1s ease-out'
+          }}>
+            <path 
+              d="M2958 3050 c-56 -30 -82 -73 -86 -146 -3 -43 1 -70 12 -92 62 -120
+250 -122 313 -2 38 71 28 147 -25 204 -54 57 -144 72 -214 36z" 
+              style={{
+                transform: isBlinking ? 'scaleY(0.1)' : 'scaleY(1)',
+                transition: 'transform 0.2s ease-in-out',
+                transformOrigin: 'center'
+              }}
+            />
           </g>
         </g>
       </svg>
