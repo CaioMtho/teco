@@ -1,9 +1,10 @@
-FROM mcr.microsoft.com/vscode/devcontainers/javascript-node:20
+FROM mcr.microsoft.com/devcontainers/dotnet:8.0
 
-RUN apt-get update && \
-    apt-get install -y zsh curl git && \
-    chsh -s $(which zsh)
+RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
+  && apt-get update \
+  && apt-get install -y nodejs \
+  && npm install -g pnpm
 
-RUN npm install -g pnpm
+RUN apt-get install -y zsh git && chsh -s $(which zsh)
 
 WORKDIR /workspace

@@ -15,10 +15,9 @@
     "dbaeumer.vscode-eslint",
     "bradlc.vscode-tailwindcss",
     "ms-dotnettools.csharp",
-    "ms-vscode.vscode-typescript-next",
-    "GitHub.vscode-pull-request-github"
+    "ms-vscode.vscode-typescript-next"
   ],
   "forwardPorts": [3000, 5000],
-  "postCreateCommand": "cd apps/web && pnpm install",
-  "remoteUser": "node"
+  "postCreateCommand": "pnpm install -r",
+  "remoteUser": "vscode"
 }
