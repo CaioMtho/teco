@@ -1,0 +1,6 @@
+@TecoApi_HostAddress = http://localhost:5201
+
+GET {{TecoApi_HostAddress}}/
+Accept: application/json
+
+###

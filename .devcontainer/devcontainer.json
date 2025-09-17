@@ -16,9 +16,11 @@
     "bradlc.vscode-tailwindcss",
     "ms-dotnettools.csharp",
     "ms-vscode.vscode-typescript-next",
-    "GitHub.vscode-pull-request-github"
+    "humao.rest-client",
+    "ms-dotnettools.csdevkit",
+    "ms-dotnettools.vscodeintellicode-csharp"
   ],
   "forwardPorts": [3000, 5000],
-  "postCreateCommand": "cd apps/web && pnpm install",
-  "remoteUser": "node"
+  "postCreateCommand": "pnpm install -r",
+  "remoteUser": "vscode"
 }

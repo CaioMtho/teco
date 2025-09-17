@@ -1,22 +1,23 @@
 version: "3.9"
+version: "3.9"
+
 services:
   web:
     build:
-      context: .
-      dockerfile: .devcontainer/Dockerfile
-    working_dir: /workspace
-    volumes:
-      - .:/workspace
+      context: ./apps/web
     ports:
       - "3000:3000"
-    command: sh -c "cd apps/web && npm run dev"
-    depends_on:
-      - backend
+    volumes:
+      - ./apps/web:/app
+    working_dir: /app
+    command: pnpm dev
 
   backend:
     build:
       context: ./apps/backend
-      dockerfile: Dockerfile
     ports:
       - "5000:5000"
-    working_dir: /app
+    volumes:
+      - ./apps/backend:/src
+    working_dir: /src/TecoApi
+    command: dotnet watch run
