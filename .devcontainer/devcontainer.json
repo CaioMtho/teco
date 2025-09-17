@@ -15,7 +15,10 @@
     "dbaeumer.vscode-eslint",
     "bradlc.vscode-tailwindcss",
     "ms-dotnettools.csharp",
-    "ms-vscode.vscode-typescript-next"
+    "ms-vscode.vscode-typescript-next",
+    "humao.rest-client",
+    "ms-dotnettools.csdevkit",
+    "ms-dotnettools.vscodeintellicode-csharp"
   ],
   "forwardPorts": [3000, 5000],
   "postCreateCommand": "pnpm install -r",
