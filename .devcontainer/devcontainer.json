@@ -13,12 +13,12 @@
   "extensions": [
     "esbenp.prettier-vscode",
     "dbaeumer.vscode-eslint",
-    "Vue.volar",
     "bradlc.vscode-tailwindcss",
+    "ms-dotnettools.csharp",
     "ms-vscode.vscode-typescript-next",
     "GitHub.vscode-pull-request-github"
   ],
-  "forwardPorts": [3000],
-  "postCreateCommand": "npm install",
+  "forwardPorts": [3000, 5000],
+  "postCreateCommand": "cd apps/web && pnpm install",
   "remoteUser": "node"
 }
