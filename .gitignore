@@ -2,6 +2,8 @@
 # Geral (monorepo)
 # =====================
 
+.next/
+
 node_modules/
 .pnp
 .pnp.*
@@ -54,6 +56,24 @@ apps/backend/**/publish/
 
 # Visual Studio Code settings (optional)
 .vscode/
+
+# Rider
+
+.idea/
+# Default ignored files
+/shelf/
+/workspace.xml
+# Rider ignored files
+/contentModel.xml
+/modules.xml
+/projectSettingsUpdater.xml
+/.idea.TecoApi.iml
+# Editor-based HTTP Client requests
+/httpRequests/
+# Datasource local storage ignored files
+/dataSources/
+/dataSources.local.xml
+
 
 # =====================
 # Ionic (apps/mobile)

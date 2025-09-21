@@ -51,7 +51,7 @@ export default function RootLayout({
               width={64}
               height={64}
             />
-            <input type="search" className="h-10 bg-gray-300 border-0 rounded-lg " name="search"></input>
+            <input type="search" className="h-10 bg-gray-300 text-gray-800 border-0 rounded-lg " name="search"></input>
             <Link href="/dashboard" className="mx-12">
               <Image
                 src="/user-icon.png"
