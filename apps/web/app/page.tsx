@@ -1,4 +1,5 @@
 import MascoteTeco from "./components/mascote-teco";
+import Link from "next/link";
 
 export default function Home() {
   return (
@@ -103,7 +104,7 @@ export default function Home() {
           </div>
           
           <button className="mt-6 bg-white text-neutral-800 px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors duration-200 shadow-lg">
-            Preciso de Ajuda
+            <Link href="/request">Preciso de ajuda</Link>
           </button>
         </div>
       </div>
