@@ -7,8 +7,7 @@ public class Provider
     public required User User { get; set; }
     public string Bio { get; set; } = string.Empty;
     public ICollection<string> Skills { get; set; } = [];
-    public required string City { get; set; }
-
+    public Address? Address { get; set; }
     public float? PriceBase { get; set; }
 
     public ICollection<Order> Orders { get; set; } = [];
