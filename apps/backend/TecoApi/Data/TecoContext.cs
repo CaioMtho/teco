@@ -16,6 +16,7 @@ public class TecoContext(DbContextOptions<TecoContext> options) : DbContext(opti
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        Console.WriteLine("Context carregado com:");
 
         modelBuilder.Entity<User>()
             .Property(u => u.Role)
