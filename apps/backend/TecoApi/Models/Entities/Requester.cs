@@ -7,5 +7,7 @@ public class Requester
     public required User User { get; set; }
 
     public ICollection<Order> Orders { get; set; } = [];
+    public ICollection<Request> Requests { get; set; } = [];
+    public ICollection<Review> Reviews { get; set; } = [];
 
 }

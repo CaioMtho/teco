@@ -5,10 +5,15 @@ namespace TecoApi.Models.Entities;
 public class User
 {
     public long Id { get; set; }
+    public string? CPF {get; set;}
+    public string? CNPJ {get; set;}
     public required string Email { get; set; }
     public required string Password { get; set; }
     public required string Name { get; set; }
     public required Role Role { get; set; }
+
+    public required long PersonalAddressId { get; set; }
+    public required Address PersonalAddress { get; set; }
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public Provider? Provider { get; set; }
