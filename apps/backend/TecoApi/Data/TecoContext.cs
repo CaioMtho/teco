@@ -2,7 +2,6 @@ namespace TecoApi.Data;
 
 using TecoApi.Models.Entities;
 using Microsoft.EntityFrameworkCore;
-using TecoApi.Models.Enums;
 
 public class TecoContext(DbContextOptions<TecoContext> options) : DbContext(options)
 {
@@ -13,6 +12,7 @@ public class TecoContext(DbContextOptions<TecoContext> options) : DbContext(opti
     public DbSet<Proposal> Proposals { get; set; }
     public DbSet<Order> Orders { get; set; }
     public DbSet<Request> Requests { get; set; }
+    public DbSet<Address> Addresses { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -33,12 +33,21 @@ public class TecoContext(DbContextOptions<TecoContext> options) : DbContext(opti
             .Property(o => o.PaymentStatus)
             .HasConversion<string>();
 
+        modelBuilder.Entity<User>()
+            .HasOne(u => u.Provider)
+            .WithOne(p => p.User)
+            .HasForeignKey<Provider>(p => p.UserId);
+
+        modelBuilder.Entity<User>()
+            .HasOne(u => u.Requester)
+            .WithOne(r => r.User)
+            .HasForeignKey<Requester>(r => r.UserId);
 
         modelBuilder.Entity<User>()
             .HasOne(u => u.PersonalAddress)
             .WithOne()
             .OnDelete(DeleteBehavior.SetNull);
-        
+
         modelBuilder.Entity<Provider>()
             .HasOne(p => p.WorkAddress)
             .WithOne()
