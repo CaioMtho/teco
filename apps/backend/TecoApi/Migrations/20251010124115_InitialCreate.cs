@@ -12,8 +12,12 @@ namespace TecoApi.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.EnsureSchema(
+                name: "core_schema");
+
             migrationBuilder.CreateTable(
                 name: "Addresses",
+                schema: "core_schema",
                 columns: table => new
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
@@ -33,6 +37,7 @@ namespace TecoApi.Migrations
 
             migrationBuilder.CreateTable(
                 name: "Users",
+                schema: "core_schema",
                 columns: table => new
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
@@ -43,7 +48,7 @@ namespace TecoApi.Migrations
                     Password = table.Column<string>(type: "text", nullable: false),
                     Name = table.Column<string>(type: "text", nullable: false),
                     Role = table.Column<string>(type: "text", nullable: false),
-                    PersonalAddressId = table.Column<long>(type: "bigint", nullable: false),
+                    PersonalAddressId = table.Column<long>(type: "bigint", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
@@ -52,6 +57,7 @@ namespace TecoApi.Migrations
                     table.ForeignKey(
                         name: "FK_Users_Addresses_PersonalAddressId",
                         column: x => x.PersonalAddressId,
+                        principalSchema: "core_schema",
                         principalTable: "Addresses",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.SetNull);
@@ -59,6 +65,7 @@ namespace TecoApi.Migrations
 
             migrationBuilder.CreateTable(
                 name: "Providers",
+                schema: "core_schema",
                 columns: table => new
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
@@ -75,12 +82,14 @@ namespace TecoApi.Migrations
                     table.ForeignKey(
                         name: "FK_Providers_Addresses_WorkAddressId",
                         column: x => x.WorkAddressId,
+                        principalSchema: "core_schema",
                         principalTable: "Addresses",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.SetNull);
                     table.ForeignKey(
                         name: "FK_Providers_Users_UserId",
                         column: x => x.UserId,
+                        principalSchema: "core_schema",
                         principalTable: "Users",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -88,6 +97,7 @@ namespace TecoApi.Migrations
 
             migrationBuilder.CreateTable(
                 name: "Requesters",
+                schema: "core_schema",
                 columns: table => new
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
@@ -100,6 +110,7 @@ namespace TecoApi.Migrations
                     table.ForeignKey(
                         name: "FK_Requesters_Users_UserId",
                         column: x => x.UserId,
+                        principalSchema: "core_schema",
                         principalTable: "Users",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -107,6 +118,7 @@ namespace TecoApi.Migrations
 
             migrationBuilder.CreateTable(
                 name: "Requests",
+                schema: "core_schema",
                 columns: table => new
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
@@ -125,12 +137,14 @@ namespace TecoApi.Migrations
                     table.ForeignKey(
                         name: "FK_Requests_Addresses_ServiceAddressId",
                         column: x => x.ServiceAddressId,
+                        principalSchema: "core_schema",
                         principalTable: "Addresses",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.SetNull);
                     table.ForeignKey(
                         name: "FK_Requests_Requesters_RequesterId",
                         column: x => x.RequesterId,
+                        principalSchema: "core_schema",
                         principalTable: "Requesters",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -138,6 +152,7 @@ namespace TecoApi.Migrations
 
             migrationBuilder.CreateTable(
                 name: "Proposals",
+                schema: "core_schema",
                 columns: table => new
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
@@ -154,12 +169,14 @@ namespace TecoApi.Migrations
                     table.ForeignKey(
                         name: "FK_Proposals_Providers_ProviderId",
                         column: x => x.ProviderId,
+                        principalSchema: "core_schema",
                         principalTable: "Providers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_Proposals_Requests_RequestId",
                         column: x => x.RequestId,
+                        principalSchema: "core_schema",
                         principalTable: "Requests",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -167,6 +184,7 @@ namespace TecoApi.Migrations
 
             migrationBuilder.CreateTable(
                 name: "Orders",
+                schema: "core_schema",
                 columns: table => new
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
@@ -187,23 +205,27 @@ namespace TecoApi.Migrations
                     table.ForeignKey(
                         name: "FK_Orders_Proposals_ProposalId",
                         column: x => x.ProposalId,
+                        principalSchema: "core_schema",
                         principalTable: "Proposals",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_Orders_Providers_ProviderId",
                         column: x => x.ProviderId,
+                        principalSchema: "core_schema",
                         principalTable: "Providers",
                         principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_Orders_Requesters_RequesterId",
                         column: x => x.RequesterId,
+                        principalSchema: "core_schema",
                         principalTable: "Requesters",
                         principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
                 name: "Reviews",
+                schema: "core_schema",
                 columns: table => new
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
@@ -221,18 +243,21 @@ namespace TecoApi.Migrations
                     table.ForeignKey(
                         name: "FK_Reviews_Orders_OrderId",
                         column: x => x.OrderId,
+                        principalSchema: "core_schema",
                         principalTable: "Orders",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_Reviews_Providers_ProviderId",
                         column: x => x.ProviderId,
+                        principalSchema: "core_schema",
                         principalTable: "Providers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_Reviews_Requesters_RequesterId",
                         column: x => x.RequesterId,
+                        principalSchema: "core_schema",
                         principalTable: "Requesters",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -240,77 +265,91 @@ namespace TecoApi.Migrations
 
             migrationBuilder.CreateIndex(
                 name: "IX_Orders_ProposalId",
+                schema: "core_schema",
                 table: "Orders",
                 column: "ProposalId",
                 unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Orders_ProviderId",
+                schema: "core_schema",
                 table: "Orders",
                 column: "ProviderId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Orders_RequesterId",
+                schema: "core_schema",
                 table: "Orders",
                 column: "RequesterId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Proposals_ProviderId",
+                schema: "core_schema",
                 table: "Proposals",
                 column: "ProviderId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Proposals_RequestId",
+                schema: "core_schema",
                 table: "Proposals",
                 column: "RequestId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Providers_UserId",
+                schema: "core_schema",
                 table: "Providers",
                 column: "UserId",
                 unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Providers_WorkAddressId",
+                schema: "core_schema",
                 table: "Providers",
                 column: "WorkAddressId",
                 unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Requesters_UserId",
+                schema: "core_schema",
                 table: "Requesters",
                 column: "UserId",
                 unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Requests_RequesterId",
+                schema: "core_schema",
                 table: "Requests",
                 column: "RequesterId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Requests_ServiceAddressId",
+                schema: "core_schema",
                 table: "Requests",
                 column: "ServiceAddressId",
                 unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Reviews_OrderId",
+                schema: "core_schema",
                 table: "Reviews",
                 column: "OrderId",
                 unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Reviews_ProviderId",
+                schema: "core_schema",
                 table: "Reviews",
                 column: "ProviderId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Reviews_RequesterId",
+                schema: "core_schema",
                 table: "Reviews",
                 column: "RequesterId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Users_PersonalAddressId",
+                schema: "core_schema",
                 table: "Users",
                 column: "PersonalAddressId",
                 unique: true);
@@ -320,28 +359,36 @@ namespace TecoApi.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "Reviews");
+                name: "Reviews",
+                schema: "core_schema");
 
             migrationBuilder.DropTable(
-                name: "Orders");
+                name: "Orders",
+                schema: "core_schema");
 
             migrationBuilder.DropTable(
-                name: "Proposals");
+                name: "Proposals",
+                schema: "core_schema");
 
             migrationBuilder.DropTable(
-                name: "Providers");
+                name: "Providers",
+                schema: "core_schema");
 
             migrationBuilder.DropTable(
-                name: "Requests");
+                name: "Requests",
+                schema: "core_schema");
 
             migrationBuilder.DropTable(
-                name: "Requesters");
+                name: "Requesters",
+                schema: "core_schema");
 
             migrationBuilder.DropTable(
-                name: "Users");
+                name: "Users",
+                schema: "core_schema");
 
             migrationBuilder.DropTable(
-                name: "Addresses");
+                name: "Addresses",
+                schema: "core_schema");
         }
     }
 }

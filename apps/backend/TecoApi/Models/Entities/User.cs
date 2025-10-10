@@ -24,9 +24,9 @@ public class User
 
     public required Role Role { get; set; }
 
-    public required long PersonalAddressId { get; set; }
+    public long? PersonalAddressId { get; set; }
 
-    public required Address PersonalAddress { get; set; }
+    public Address? PersonalAddress { get; set; }
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public Provider? Provider { get; set; }

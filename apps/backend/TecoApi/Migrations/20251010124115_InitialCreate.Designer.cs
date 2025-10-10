@@ -12,7 +12,7 @@ using TecoApi.Data;
 namespace TecoApi.Migrations
 {
     [DbContext(typeof(TecoContext))]
-    [Migration("20251009020352_InitialCreate")]
+    [Migration("20251010124115_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -20,6 +20,7 @@ namespace TecoApi.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
+                .HasDefaultSchema("core_schema")
                 .HasAnnotation("ProductVersion", "9.0.9")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
@@ -68,7 +69,7 @@ namespace TecoApi.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Addresses");
+                    b.ToTable("Addresses", "core_schema");
                 });
 
             modelBuilder.Entity("TecoApi.Models.Entities.Order", b =>
@@ -117,7 +118,7 @@ namespace TecoApi.Migrations
 
                     b.HasIndex("RequesterId");
 
-                    b.ToTable("Orders");
+                    b.ToTable("Orders", "core_schema");
                 });
 
             modelBuilder.Entity("TecoApi.Models.Entities.Proposal", b =>
@@ -151,7 +152,7 @@ namespace TecoApi.Migrations
 
                     b.HasIndex("RequestId");
 
-                    b.ToTable("Proposals");
+                    b.ToTable("Proposals", "core_schema");
                 });
 
             modelBuilder.Entity("TecoApi.Models.Entities.Provider", b =>
@@ -188,7 +189,7 @@ namespace TecoApi.Migrations
                     b.HasIndex("WorkAddressId")
                         .IsUnique();
 
-                    b.ToTable("Providers");
+                    b.ToTable("Providers", "core_schema");
                 });
 
             modelBuilder.Entity("TecoApi.Models.Entities.Request", b =>
@@ -233,7 +234,7 @@ namespace TecoApi.Migrations
                     b.HasIndex("ServiceAddressId")
                         .IsUnique();
 
-                    b.ToTable("Requests");
+                    b.ToTable("Requests", "core_schema");
                 });
 
             modelBuilder.Entity("TecoApi.Models.Entities.Requester", b =>
@@ -252,7 +253,7 @@ namespace TecoApi.Migrations
                     b.HasIndex("UserId")
                         .IsUnique();
 
-                    b.ToTable("Requesters");
+                    b.ToTable("Requesters", "core_schema");
                 });
 
             modelBuilder.Entity("TecoApi.Models.Entities.Review", b =>
@@ -292,7 +293,7 @@ namespace TecoApi.Migrations
 
                     b.HasIndex("RequesterId");
 
-                    b.ToTable("Reviews");
+                    b.ToTable("Reviews", "core_schema");
                 });
 
             modelBuilder.Entity("TecoApi.Models.Entities.User", b =>
@@ -326,7 +327,7 @@ namespace TecoApi.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<long>("PersonalAddressId")
+                    b.Property<long?>("PersonalAddressId")
                         .HasColumnType("bigint");
 
                     b.Property<string>("Role")
@@ -338,7 +339,7 @@ namespace TecoApi.Migrations
                     b.HasIndex("PersonalAddressId")
                         .IsUnique();
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", "core_schema");
                 });
 
             modelBuilder.Entity("TecoApi.Models.Entities.Order", b =>
@@ -458,8 +459,7 @@ namespace TecoApi.Migrations
                     b.HasOne("TecoApi.Models.Entities.Address", "PersonalAddress")
                         .WithOne()
                         .HasForeignKey("TecoApi.Models.Entities.User", "PersonalAddressId")
-                        .OnDelete(DeleteBehavior.SetNull)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("PersonalAddress");
                 });
