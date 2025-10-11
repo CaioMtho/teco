@@ -8,10 +8,10 @@ public class Order
     public required Proposal Proposal { get; set; }
     public OrderStatus Status { get; set; } = OrderStatus.PENDING;
     public PaymentStatus PaymentStatus { get; set; } = PaymentStatus.HELD;
-    public DateTime CreatedAt { get; set; } = DateTime.Now;
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime? StartedAt { get; set; }
     public DateTime? FinishedAt { get; set; }
     public bool ClientConfirmed { get; set; } = false;
 
-    public required Review Review { get; set; }
+    public Review? Review { get; set; }
 }

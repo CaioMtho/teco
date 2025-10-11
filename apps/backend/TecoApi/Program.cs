@@ -1,16 +1,19 @@
 
 using DotNetEnv;
+using Microsoft.EntityFrameworkCore;
+using TecoApi.Data;
 
 
 var builder = WebApplication.CreateBuilder(args);
 
-Env.Load();
+Env.Load("../../../.env");
 
 var connectionString = Environment.GetEnvironmentVariable("DEFAULT_CONNECTION");
-
 builder.Services.AddHealthChecks();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddDbContext<TecoContext>(options =>
+    options.UseNpgsql(connectionString));
 
 builder.Services.AddCors(options =>
 {

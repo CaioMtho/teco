@@ -42,7 +42,6 @@ export default function RootLayout({
             <nav className="flex space-x-8 flex-1 justify-center">
               <Link href="/" className="text-white font-medium hover:text-gray-300 transition-colors">Inicio</Link>
               <Link href="/about" className="text-white font-medium hover:text-gray-300 transition-colors">Sobre</Link>
-              <Link href="/dashboard" className="text-white font-medium hover:text-gray-300 transition-colors">Dashboard</Link>
             </nav>
             <Image
               src="/search-icon.png"
