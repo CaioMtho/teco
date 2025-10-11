@@ -10,7 +10,7 @@ public class UserController(IUserService userService) : ControllerBase
 {
     private readonly IUserService _userService = userService;
 
-    [HttpGet("{id}")]
+    [HttpGet("{id}", Name = "GetUserById")]
     public async Task<IActionResult> GetByIdAsync(long id)
     {
         return Ok(await _userService.GetByIdAsync(id));
@@ -26,7 +26,11 @@ public class UserController(IUserService userService) : ControllerBase
     public async Task<IActionResult> CreateAsync([FromBody] CreateUserDto createUserDto)
     {
         var user = await _userService.CreateAsync(createUserDto);
-        return CreatedAtAction(nameof(GetByIdAsync), new { id = user.Id }, user);
+        return CreatedAtRoute(
+            "GetUserById", 
+            new { id = user.Id }, 
+            user
+        );
     }
 
     [HttpPatch("{id}")]
