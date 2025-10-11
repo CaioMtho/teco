@@ -6,7 +6,8 @@ using TecoApi.Helpers;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using System.Text;
-
+using TecoApi.Middleware;
+using Microsoft.Extensions.Logging;
 var builder = WebApplication.CreateBuilder(args);
 
 Env.Load("../../../.env");
@@ -14,6 +15,9 @@ Env.Load("../../../.env");
 var jwtKey = builder.Configuration["Jwt:Key"] ?? Environment.GetEnvironmentVariable("JWT_KEY");
 var jwtIssuer = builder.Configuration["Jwt:Issuer"] ?? Environment.GetEnvironmentVariable("JWT_ISSUER");
 var jwtAudience = builder.Configuration["Jwt:Audience"] ?? Environment.GetEnvironmentVariable("JWT_AUDIENCE");
+
+if (jwtKey == null || jwtIssuer == null || jwtAudience == null)
+    throw new InvalidOperationException("Configuração de JWT (Key, Issuer ou Audience) está ausente");
 
 var connectionString = Environment.GetEnvironmentVariable("DEFAULT_CONNECTION");
 builder.Services.AddHealthChecks();
@@ -58,6 +62,8 @@ builder.Services.AddAuthorization();
 
 
 var app = builder.Build();
+app.UseGlobalExceptionMiddleware();
+
 app.MapHealthChecks("/health");
 app.UseCors("AllowAll");
 
