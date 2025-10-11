@@ -5,12 +5,12 @@ using TecoApi.Models.Entities;
 
 namespace TecoApi.Services;
 
-public class UserService(TecoContext context)
+public class UserService(TecoContext context) : IUserService
 {
     private readonly TecoContext _context = context;
     private readonly DbSet<User> _users = context.Users;
 
-    private UserDto ToDto(User user) =>
+    public static UserDto ToDto(User user) =>
         new()
         {
             Id = user.Id,
@@ -21,24 +21,24 @@ public class UserService(TecoContext context)
                 AddressService.ToDto(user.PersonalAddress) : null
         };
 
-    public Task<UserDto?> GetByIdAsync(long id)
+    public async Task<UserDto> GetByIdAsync(long id)
     {
-        var user = _users
+        var user = await _users
             .AsNoTracking()
             .Include(u => u.PersonalAddress)
             .FirstOrDefaultAsync(u => u.Id == id)
             ?? throw new KeyNotFoundException("Usuário não encontrado");
-        return user.ContinueWith(u => u.Result != null ? ToDto(u.Result) : null);
+        return ToDto(user);
     }
 
-    public Task<UserDto?> GetByEmailAsync(string email)
+    public async Task<UserDto> GetByEmailAsync(string email)
     {
-        var user = _users
+        var user = await _users
             .AsNoTracking()
             .Include(u => u.PersonalAddress)
             .FirstOrDefaultAsync(u => u.Email == email)
             ?? throw new KeyNotFoundException("Usuário não encontrado");
-        return user.ContinueWith(u => u.Result != null ? ToDto(u.Result) : null);
+        return ToDto(user);
     }
 
     public async Task<UserDto> CreateAsync(CreateUserDto createUserDto)

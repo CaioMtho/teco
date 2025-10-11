@@ -4,14 +4,9 @@ using TecoApi.Data;
 using TecoApi.DTOs.Address;
 using TecoApi.Models.Entities;
 
-public class AddressService
+public class AddressService(TecoContext context) : IAddressService
 {
-    private readonly TecoContext _context;
-
-    public AddressService(TecoContext context)
-    {
-        _context = context;
-    }
+    private readonly TecoContext _context = context;
 
     public static AddressDto ToDto(Address address) =>
         new()
@@ -37,4 +32,11 @@ public class AddressService
             Number = addressDto.Number,
             PostalCode = addressDto.PostalCode
         };
+
+    public async Task<AddressDto> GetByIdAsync(long id)
+    {
+        var address = await _context.Addresses.FindAsync(id)
+            ?? throw new KeyNotFoundException("Endereço não encontrado.");
+        return ToDto(address);
+    }
 }
