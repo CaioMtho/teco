@@ -13,6 +13,6 @@ public class CreateUserDto
     public required string Name { get; set; }
     public string? CPF { get; set; }
     public string? CNPJ { get; set; }
-    public AddressDto? PersonalAddressId { get; set; }
+    public AddressDto? PersonalAddress { get; set; }
     public Role Role { get; set; }
 }
