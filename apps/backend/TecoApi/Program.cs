@@ -73,10 +73,7 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapGet("/", () =>
-{
-    return Results.Ok("API rodando...");
-});
+app.MapControllers();
 
 app.UseHttpsRedirection();
 
