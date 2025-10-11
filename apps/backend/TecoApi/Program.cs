@@ -9,7 +9,6 @@ var builder = WebApplication.CreateBuilder(args);
 Env.Load("../../../.env");
 
 var connectionString = Environment.GetEnvironmentVariable("DEFAULT_CONNECTION");
-Console.WriteLine("App carregada com: " + connectionString);
 builder.Services.AddHealthChecks();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();

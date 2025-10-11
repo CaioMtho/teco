@@ -10,7 +10,6 @@ public class TecoContextFactory : IDesignTimeDbContextFactory<TecoContext>
         Env.Load("../../../.env");
 
         var connectionString = Environment.GetEnvironmentVariable("DEFAULT_CONNECTION");
-        Console.WriteLine("Factory carregada com: " + connectionString);
 
 
         var optionsBuilder = new DbContextOptionsBuilder<TecoContext>();
