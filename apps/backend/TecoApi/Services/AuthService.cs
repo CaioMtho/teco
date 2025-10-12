@@ -13,7 +13,7 @@ public class AuthService(TecoContext context, IJwtGenerator jwtGenerator) : IAut
     public async Task<AuthResponseDto> AuthenticateAsync(LoginRequestDto loginRequestDto)
     {
         var user = await _users.FirstOrDefaultAsync(u => u.Email == loginRequestDto.Email);
-        if (user == null || BCrypt.Net.BCrypt.Verify(loginRequestDto.Password, user.Password))
+        if (user == null || !BCrypt.Net.BCrypt.Verify(loginRequestDto.Password, user.Password))
         {
             throw new UnauthorizedAccessException("Credenciais inválidas");
         }
