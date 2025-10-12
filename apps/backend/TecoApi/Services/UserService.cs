@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using TecoApi.Data;
 using TecoApi.DTOs.User;
 using TecoApi.Models.Entities;
+using TecoApi.Models.Enums;
 
 namespace TecoApi.Services;
 
@@ -51,14 +52,29 @@ public class UserService(TecoContext context) : IUserService
             Email = createUserDto.Email,
             Role = createUserDto.Role,
             Password = BCrypt.Net.BCrypt.HashPassword(createUserDto.Password, workFactor: 12),
-            PersonalAddress = createUserDto.PersonalAddress != null ?
-                AddressService.FromDto(createUserDto.PersonalAddress) : null
+            PersonalAddress = createUserDto.PersonalAddress != null
+                ? AddressService.FromDto(createUserDto.PersonalAddress)
+                : null
         };
 
         _users.Add(user);
+
+        if (user.Role == Role.REQUESTER)
+        {
+            var requester = new Requester { User = user };
+            _context.Requesters.Add(requester);
+        }
+        else if (user.Role == Role.PROVIDER)
+        {
+            var provider = new Provider { User = user };
+            _context.Providers.Add(provider);
+        }
+
         await _context.SaveChangesAsync();
+
         return ToDto(user);
     }
+
 
     public async Task DeleteAsync(long id)
     {
