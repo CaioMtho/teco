@@ -13,10 +13,7 @@ public class TecoContextFactory : IDesignTimeDbContextFactory<TecoContext>
 
 
         var optionsBuilder = new DbContextOptionsBuilder<TecoContext>();
-        optionsBuilder.UseNpgsql(connectionString, npgsqlOptions =>
-        {
-            npgsqlOptions.MigrationsHistoryTable("__EFMigrationsHistory", "core_schema");
-        });
+        optionsBuilder.UseNpgsql(connectionString);
 
         return new TecoContext(optionsBuilder.Options);
     }
