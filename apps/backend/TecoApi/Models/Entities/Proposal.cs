@@ -16,4 +16,5 @@ public class Proposal
     [MaxLength(500, ErrorMessage = "Mensagem deve conter no máximo 500 caracteres")]
     public string Message { get; set; } = string.Empty;
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    public ChatMessage? ChatMessage { get; set; }
 }
