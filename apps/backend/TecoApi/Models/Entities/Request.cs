@@ -6,7 +6,7 @@ public class Request
 {
     public long Id { get; set; }
     public long RequesterId { get; set; }
-    public required Requester Requester { get; set; }
+    public Requester? Requester { get; set; }
 
     [StringLength(100, MinimumLength = 5, ErrorMessage = "Título deve conter entre 5 e 100 caracteres")]
     public required string Title { get; set; }

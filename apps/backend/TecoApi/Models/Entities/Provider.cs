@@ -6,7 +6,7 @@ public class Provider
 {
     public long Id { get; set; }
     public long UserId { get; set; }
-    public required User User { get; set; }
+    public User? User { get; set; }
 
     [MaxLength(500, ErrorMessage = "Bio deve conter no máximo 500 caracteres")]
     public string Bio { get; set; } = string.Empty;

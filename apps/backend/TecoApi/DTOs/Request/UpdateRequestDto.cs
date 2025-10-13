@@ -1,3 +1,5 @@
+using TecoApi.DTOs.Address;
+
 namespace TecoApi.DTOs.Request;
 
 using System.ComponentModel.DataAnnotations;
@@ -14,6 +16,7 @@ public class UpdateRequestDto
     public List<string>? Photos { get; set; }
 
     public RequestStatus? Status { get; set; }
-
     public long? ServiceAddressId { get; set; }
+
+    public AddressDto? ServiceAddress { get; set; }
 }

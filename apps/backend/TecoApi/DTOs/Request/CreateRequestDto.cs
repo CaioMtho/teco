@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using TecoApi.DTOs.Address;
 
 namespace TecoApi.DTOs.Request;
 
@@ -16,5 +17,5 @@ public class CreateRequestDto
     [Required]
     public long RequesterId { get; set; }
 
-    public long? ServiceAddressId { get; set; }
+    public AddressDto? ServiceAddress { get; set; }
 }

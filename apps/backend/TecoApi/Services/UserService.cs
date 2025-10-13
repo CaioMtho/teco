@@ -85,43 +85,41 @@ public class UserService(TecoContext context) : IUserService
     }
 
     public async Task<UserDto> UpdateAsync(long id, UpdateUserDto dto)
-{
-    var user = await _users
-        .Include(u => u.PersonalAddress)
-        .FirstOrDefaultAsync(u => u.Id == id)
-        ?? throw new KeyNotFoundException("Usuário não encontrado");
-
-    if (!string.IsNullOrWhiteSpace(dto.Name)) user.Name = dto.Name;
-    if (!string.IsNullOrWhiteSpace(dto.CPF)) user.CPF = dto.CPF;
-    if (!string.IsNullOrWhiteSpace(dto.CNPJ)) user.CNPJ = dto.CNPJ;
-    if (dto.PersonalAddressId.HasValue)
     {
-        user.PersonalAddressId = dto.PersonalAddressId;
-    }
-    else if (dto.PersonalAddress != null)
-    {
-        var addrDto = dto.PersonalAddress;
-        if (addrDto.Id.HasValue)
+        var user = await _users
+            .Include(u => u.PersonalAddress)
+            .FirstOrDefaultAsync(u => u.Id == id)
+            ?? throw new KeyNotFoundException("Usuário não encontrado");
+
+        if (!string.IsNullOrWhiteSpace(dto.Name)) user.Name = dto.Name;
+        if (!string.IsNullOrWhiteSpace(dto.CPF)) user.CPF = dto.CPF;
+        if (!string.IsNullOrWhiteSpace(dto.CNPJ)) user.CNPJ = dto.CNPJ;
+        if (dto.PersonalAddressId.HasValue)
         {
-            var addr = user.PersonalAddress ?? await _context.Addresses.FindAsync(addrDto.Id.Value);
-            if (addr == null) throw new KeyNotFoundException("Endereço não encontrado");
-
-            if (!string.IsNullOrWhiteSpace(addrDto.Street)) addr.Street = addrDto.Street;
-            user.PersonalAddress = addr;
-            user.PersonalAddressId = addr.Id;
+            user.PersonalAddressId = dto.PersonalAddressId;
         }
-        else
+        else if (dto.PersonalAddress != null)
         {
-            var newAddr = AddressService.FromDto(addrDto);
-            _context.Addresses.Add(newAddr);
-            user.PersonalAddress = newAddr;
+            var addrDto = dto.PersonalAddress;
+            if (addrDto.Id.HasValue)
+            {
+                var addr = user.PersonalAddress ?? await _context.Addresses.FindAsync(addrDto.Id.Value);
+                if (addr == null) throw new KeyNotFoundException("Endereço não encontrado");
+
+                if (!string.IsNullOrWhiteSpace(addrDto.Street)) addr.Street = addrDto.Street;
+                user.PersonalAddress = addr;
+                user.PersonalAddressId = addr.Id;
+            }
+            else
+            {
+                var newAddr = AddressService.FromDto(addrDto);
+                _context.Addresses.Add(newAddr);
+                user.PersonalAddress = newAddr;
+            }
         }
+
+        await _context.SaveChangesAsync();
+        return ToDto(user);
     }
-
-    await _context.SaveChangesAsync();
-    return ToDto(user);
-}
-
-
     
 }

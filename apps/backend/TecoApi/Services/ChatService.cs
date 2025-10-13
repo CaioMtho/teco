@@ -4,7 +4,7 @@ using TecoApi.Models.Entities;
 
 namespace TecoApi.Services
 {
-    public class ChatService(TecoContext context)
+    public class ChatService(TecoContext context) : IChatService
     {
         private readonly TecoContext _context = context 
                                                 ?? throw new ArgumentNullException(nameof(context));
