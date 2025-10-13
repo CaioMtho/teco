@@ -13,6 +13,7 @@ public class TecoContext(DbContextOptions<TecoContext> options) : DbContext(opti
     public DbSet<Order> Orders { get; set; }
     public DbSet<Request> Requests { get; set; }
     public DbSet<Address> Addresses { get; set; }
+    public DbSet<ChatMessage> ChatMessages { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -31,6 +32,13 @@ public class TecoContext(DbContextOptions<TecoContext> options) : DbContext(opti
         modelBuilder.Entity<Order>()
             .Property(o => o.PaymentStatus)
             .HasConversion<string>();
+
+        modelBuilder.Entity<Proposal>()
+            .HasOne(p => p.ChatMessage)
+            .WithOne(cm => cm.Proposal)
+            .HasForeignKey<Proposal>(p => p.ChatMessageId)
+            .OnDelete(DeleteBehavior.SetNull);
+
 
         modelBuilder.Entity<User>()
             .HasOne(u => u.Provider)
