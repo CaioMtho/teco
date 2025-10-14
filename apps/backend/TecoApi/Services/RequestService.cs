@@ -6,7 +6,7 @@ using TecoApi.Models.Entities;
 
 namespace TecoApi.Services;
 
-public class RequestService(TecoContext context)
+public class RequestService(TecoContext context) : IRequestService
 {
     private readonly TecoContext _context = context;
     private readonly DbSet<Request> _requests = context.Requests;
@@ -155,7 +155,6 @@ public class RequestService(TecoContext context)
     {
         var request = await _requests.FindAsync(id) 
                       ?? throw new KeyNotFoundException("Request não encontrada");
-        
         if (updateRequestDto.Title != null && updateRequestDto.Title != request.Title)
             request.Title = updateRequestDto.Title;
         if(updateRequestDto.Description != null && updateRequestDto.Description != request.Description)
