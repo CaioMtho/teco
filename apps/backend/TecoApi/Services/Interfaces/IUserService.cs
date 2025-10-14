@@ -1,6 +1,6 @@
 using TecoApi.DTOs.User;
 
-namespace TecoApi.Services;
+namespace TecoApi.Services.Interfaces;
 
 public interface IUserService
 {

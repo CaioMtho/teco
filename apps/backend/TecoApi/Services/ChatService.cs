@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using TecoApi.Data;
 using TecoApi.Models.Entities;
+using TecoApi.Services.Interfaces;
 
 namespace TecoApi.Services
 {

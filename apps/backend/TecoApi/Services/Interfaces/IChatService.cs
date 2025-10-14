@@ -1,6 +1,6 @@
 using TecoApi.Models.Entities;
 
-namespace TecoApi.Services;
+namespace TecoApi.Services.Interfaces;
 
 public interface IChatService
 {

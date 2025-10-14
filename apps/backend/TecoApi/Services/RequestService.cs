@@ -3,6 +3,7 @@ using TecoApi.Data;
 using TecoApi.DTOs.Request;
 using TecoApi.Helpers;
 using TecoApi.Models.Entities;
+using TecoApi.Services.Interfaces;
 
 namespace TecoApi.Services;
 

@@ -3,6 +3,7 @@ using TecoApi.Data;
 using TecoApi.DTOs.User;
 using TecoApi.Models.Entities;
 using TecoApi.Models.Enums;
+using TecoApi.Services.Interfaces;
 
 namespace TecoApi.Services;
 

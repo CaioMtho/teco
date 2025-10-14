@@ -1,8 +1,7 @@
 using TecoApi.DTOs.Request;
 using TecoApi.Helpers;
-using TecoApi.Models.Entities;
 
-namespace TecoApi.Services;
+namespace TecoApi.Services.Interfaces;
 
 public interface IRequestService
 {

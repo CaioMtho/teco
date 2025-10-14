@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TecoApi.DTOs.User;
 using TecoApi.Services;
+using TecoApi.Services.Interfaces;
 
 namespace TecoApi.Controllers;
 

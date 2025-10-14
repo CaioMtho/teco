@@ -10,6 +10,8 @@ using TecoApi.Middleware;
 using Microsoft.Extensions.Logging;
 using TecoApi.Services;
 using System.Security.Claims;
+using TecoApi.Services.Interfaces;
+
 var builder = WebApplication.CreateBuilder(args);
 
 Env.Load("../../../.env");

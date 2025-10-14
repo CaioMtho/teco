@@ -4,6 +4,7 @@ using TecoApi.DTOs.Request;
 using TecoApi.Helpers;
 using TecoApi.Models.Enums;
 using TecoApi.Services;
+using TecoApi.Services.Interfaces;
 
 namespace TecoApi.Controllers;
 
