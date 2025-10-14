@@ -20,7 +20,7 @@ public class RequestService(TecoContext context) : IRequestService
         Photos = request.Photos.ToList(),
         Status = request.Status.ToString(),
         RequesterId = request.RequesterId,
-        RequesterName = request.Requester.User.Name,
+        RequesterName = request.Requester!.User!.Name,
         ServiceAddressId = request.ServiceAddressId,
         ServiceAddress = request.ServiceAddress != null 
             ? AddressService.ToDto(request.ServiceAddress) 
@@ -188,7 +188,21 @@ public class RequestService(TecoContext context) : IRequestService
 
         return ToDto(request);
     }
-    
-    
+
+    public async Task<dynamic> GetRequestProposalCountAsync(long id)
+    {
+        var request = await _requests.FindAsync(id) 
+                       ?? throw new KeyNotFoundException("Proposal não encontrada");
+        var proposalCount = request.Proposals.Count;
+
+        return new
+        {
+            request.Id,
+            request.Description,
+            request.CreatedAt,
+            ProposalCount = proposalCount,
+            Status = request.Status.ToString()
+        };
+    }
 
 }

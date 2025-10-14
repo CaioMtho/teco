@@ -1,6 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using TecoApi.Data;
+using TecoApi.DTOs.Review;
 using TecoApi.DTOs.User;
+using TecoApi.Helpers;
 using TecoApi.Models.Entities;
 using TecoApi.Models.Enums;
 using TecoApi.Services.Interfaces;
@@ -122,5 +124,27 @@ public class UserService(TecoContext context) : IUserService
         await _context.SaveChangesAsync();
         return ToDto(user);
     }
+
+    public async Task<List<ReviewDto>> GetReviewsByProviderAsync(long id)
+    {
+        var reviews = await _context.Reviews
+            .Where(r => r.ProviderId == id)
+            .Include(r => r.Requester!.User)
+            .Select(r => new ReviewDto
+            {
+                Id = r.Id,
+                OrderId = r.OrderId,
+                ProviderId = r.ProviderId,
+                RequesterId = r.RequesterId,
+                Rating = r.Rating,
+                Comment = r.Comment,
+                CreatedAt = r.CreatedAt,
+                RequesterName = r.Requester!.User.Name
+            })
+            .ToListAsync();
+        
+        return reviews;
+    }
+
     
 }
