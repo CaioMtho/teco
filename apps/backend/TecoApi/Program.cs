@@ -10,6 +10,7 @@ using TecoApi.Middleware;
 using Microsoft.Extensions.Logging;
 using TecoApi.Services;
 using System.Security.Claims;
+using TecoApi.Hubs;
 using TecoApi.Services.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -76,6 +77,10 @@ builder.Services.AddScoped<IJwtGenerator, JwtGenerator>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IAddressService, AddressService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IChatService, ChatService>();
+builder.Services.AddScoped<IRequestService, RequestService>();
+builder.Services.AddScoped<IOrderService, OrderService>();
+
 
 builder.Services.AddAuthentication(options =>
 {
@@ -99,12 +104,12 @@ builder.Services.AddAuthentication(options =>
 });
 
 builder.Services.AddAuthorization();
-
+builder.Services.AddSignalR();
 
 var app = builder.Build();
 app.UseGlobalExceptionMiddleware();
-
-app.MapHealthChecks("/health");
+app.MapHub<ChatHub>("/api/chathub");
+app.MapHealthChecks("/api/health");
 app.UseCors("AllowAll");
 
 if (app.Environment.IsDevelopment())

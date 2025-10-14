@@ -5,10 +5,11 @@ using TecoApi.DTOs.Review;
 using TecoApi.Helpers;
 using TecoApi.Models.Entities;
 using TecoApi.Models.Enums;
+using TecoApi.Services.Interfaces;
 
 namespace TecoApi.Services;
 
-public class OrderService(TecoContext context)
+public class OrderService(TecoContext context) : IOrderService
 {
     private readonly TecoContext _context = context;
     private readonly DbSet<Order> _orders = context.Orders;
