@@ -42,7 +42,11 @@ export default function RootLayout({
             <nav className="flex space-x-8 flex-1 justify-center">
               <Link href="/" className="text-white font-medium hover:text-gray-300 transition-colors">Inicio</Link>
               <Link href="/about" className="text-white font-medium hover:text-gray-300 transition-colors">Sobre</Link>
+              <Link href="/dashboard" className="text-white font-medium hover:text-gray-300 transition-colors">Dashboard</Link>
+              <Link href="/requests" className="text-white font-medium hover:text-gray-300 transition-colors">Requisições</Link>
+
             </nav>
+            {/* -- antiga barra de pesquisa
             <Image
               src="/search-icon.png"
               alt="icone"
@@ -51,6 +55,9 @@ export default function RootLayout({
               height={64}
             />
             <input type="search" className="h-10 bg-gray-300 text-gray-800 border-0 rounded-lg " name="search"></input>
+            */}
+            <Link href="/login" className="inline-block w-auto p-3 py-2 mt-2 text-black font-medium transition-colors 
+        bg-white border rounded-md hover:bg-gray-100 ">entrar</Link>
             <Link href="/dashboard" className="mx-12">
               <Image
                 src="/user-icon.png"
@@ -62,8 +69,9 @@ export default function RootLayout({
             </Link>
           </div>
         </header>
+ 
         {children}
-
+        
         <footer className="bg-gray-300 py-12 text-gray-600" aria-labelledby="footer-heading">
           <div className="max-w-7xl mx-auto px-4" id="footer-heading">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
