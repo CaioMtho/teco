@@ -85,6 +85,31 @@ public class OrderService(TecoContext context)
         };
     }
 
+    public async Task<OrderDto> GetByIdAsync(long id)
+    {
+        var o = await _orders.FindAsync(id) 
+                    ?? throw new KeyNotFoundException("Order não encontrada");
+        
+        return new OrderDto
+        {
+            Id = o.Id,
+            ProposalId = o.ProposalId,
+            Status = o.Status,
+            PaymentStatus = o.PaymentStatus,
+            CreatedAt = o.CreatedAt,
+            StartedAt = o.StartedAt,
+            FinishedAt = o.FinishedAt,
+            ClientConfirmed = o.ClientConfirmed,
+            Review = o.Review != null ? new ReviewDto
+            {
+                Id = o.Review.Id,
+                Rating = o.Review.Rating,
+                Comment = o.Review.Comment,
+                CreatedAt = o.Review.CreatedAt
+            }: null
+        };
+    }
+
     public async Task<OrderDto> CreateAsync(CreateOrderDto createOrderDto)
     {
         var order = new Order
