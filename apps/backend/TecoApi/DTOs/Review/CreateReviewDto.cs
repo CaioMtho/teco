@@ -5,9 +5,6 @@ namespace TecoApi.DTOs.Review;
 public class CreateReviewDto
 {
     [Required]
-    public long OrderId { get; set; }
-
-    [Required]
     public long ProviderId { get; set; }
 
     [Required]

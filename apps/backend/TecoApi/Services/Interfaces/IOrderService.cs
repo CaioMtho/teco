@@ -9,7 +9,7 @@ public interface IOrderService
     Task<PaginatedResult<OrderDto>> GetAsync(OrderQueryParameters q, CancellationToken ct = default);
     Task<OrderDto> GetByIdAsync(long id);
     Task<OrderDto> CreateAsync(CreateOrderDto createOrderDto);
-    Task<ReviewDto> CreateReviewAsync(CreateReviewDto createReviewDto);
+    Task<ReviewDto> CreateReviewAsync(long id, CreateReviewDto createReviewDto);
 
     Task CancelOrderAsync(long id);
     Task CompleteOrderAsync(long id);

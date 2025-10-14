@@ -133,10 +133,10 @@ public class OrderService(TecoContext context) : IOrderService
         };
     }
 
-    public async Task<ReviewDto> CreateReviewAsync(CreateReviewDto createReviewDto)
+    public async Task<ReviewDto> CreateReviewAsync(long id, CreateReviewDto createReviewDto)
     {
         var order = await _orders
-                        .FindAsync(createReviewDto.OrderId) 
+                        .FindAsync(id) 
                     ?? throw new KeyNotFoundException("Order não encontrada");
         order.Review = new Review
         {
