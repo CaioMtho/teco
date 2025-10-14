@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using TecoApi.DTOs.Order;
 using TecoApi.DTOs.Review;
 using TecoApi.Helpers;
 using TecoApi.Models.Enums;
@@ -56,12 +57,19 @@ public class OrderController(IOrderService orderService) : ControllerBase
         return Ok(result.Items);
     }
 
-    
+
     [HttpGet("{id}")]
     public async Task<IActionResult> GetByIdAsync(long id)
     {
         var order = await _orderService.GetByIdAsync(id);
         return Ok(order);
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> CreateAsync([FromBody] CreateOrderDto createOrderDto)
+    {
+        var created = await _orderService.CreateAsync(createOrderDto);
+        return CreatedAtAction(nameof(GetByIdAsync), new { id = created.Id }, created);
     }
 
     [HttpPost("{id}/review")]
@@ -96,7 +104,7 @@ public class OrderController(IOrderService orderService) : ControllerBase
     }
 
     [HttpPost("{id}/confirm")]
-    [Authorize(Roles = "ADMIN,CLIENT")]
+    [Authorize(Roles = "ADMIN,REQUESTER")]
     public async Task<IActionResult> ConfirmOrder(long id)
     {
         await _orderService.ConfirmOrderAsync(id);
