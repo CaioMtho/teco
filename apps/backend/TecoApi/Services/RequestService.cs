@@ -17,15 +17,16 @@ public class RequestService(TecoContext context) : IRequestService
         Id = request.Id,
         Title = request.Title,
         Description = request.Description,
-        Photos = request.Photos.ToList(),
+        Photos = request.Photos?.ToList() ?? [],
         Status = request.Status.ToString(),
         RequesterId = request.RequesterId,
-        RequesterName = request.Requester!.User!.Name,
+        RequesterName = request.Requester?.User?.Name ?? string.Empty,
         ServiceAddressId = request.ServiceAddressId,
         ServiceAddress = request.ServiceAddress != null 
             ? AddressService.ToDto(request.ServiceAddress) 
             : null,
-        ProposalCount = request.Proposals.Count
+        ProposalCount = request.Proposals?.Count ?? 0,
+        CreatedAt = DateTime.UtcNow
     };
 
     public async Task<PaginatedResult<RequestDto>> GetAsync(RequestQueryParameters q, CancellationToken ct = default)
@@ -47,17 +48,11 @@ public class RequestService(TecoContext context) : IRequestService
             query = query
                 .Where(r => EF.Functions.ILike(r.Title, $"%{s}%") || EF.Functions.ILike(r.Description, $"%{s}%"));
         }
-        
-        if(q.CreatedAfter.HasValue)
-            query = query.Where(x => x.CreatedAt >= q.CreatedAfter.Value);
-        if(q.CreatedBefore.HasValue)
-            query = query.Where(x => x.CreatedAt <= q.CreatedBefore.Value);
-        
-        if (q.CreatedAfter.HasValue)
-            query = query.Where(r => r.CreatedAt >= q.CreatedAfter.Value);
 
+        if (q.CreatedAfter.HasValue)
+            query = query.Where(x => x.CreatedAt >= q.CreatedAfter.Value);
         if (q.CreatedBefore.HasValue)
-            query = query.Where(r => r.CreatedAt <= q.CreatedBefore.Value);
+            query = query.Where(x => x.CreatedAt <= q.CreatedBefore.Value);
 
         var withProposals = query
             .Select(r => new
@@ -138,7 +133,7 @@ public class RequestService(TecoContext context) : IRequestService
             ServiceAddress = serviceAddress,
             CreatedAt = DateTime.UtcNow,
         };
-        
+
         _requests.Add(request);
         await _context.SaveChangesAsync();
         return ToDto(request);
@@ -156,36 +151,41 @@ public class RequestService(TecoContext context) : IRequestService
     {
         var request = await _requests.FindAsync(id) 
                       ?? throw new KeyNotFoundException("Request não encontrada");
+
         if (updateRequestDto.Title != null && updateRequestDto.Title != request.Title)
             request.Title = updateRequestDto.Title;
-        if(updateRequestDto.Description != null && updateRequestDto.Description != request.Description)
+        if (updateRequestDto.Description != null && updateRequestDto.Description != request.Description)
             request.Description = updateRequestDto.Description;
-        if(updateRequestDto.Photos != null &&  !Equals(updateRequestDto.Photos, request.Photos))
+        if (updateRequestDto.Photos != null && !Equals(updateRequestDto.Photos, request.Photos))
             request.Photos = updateRequestDto.Photos;
-        if (updateRequestDto.ServiceAddressId  != null)
+
+        if (updateRequestDto.ServiceAddressId != null)
         {
             request.ServiceAddressId = updateRequestDto.ServiceAddressId;
         }
         else if (updateRequestDto.ServiceAddress != null)
         {
             var addrDto = updateRequestDto.ServiceAddress;
-            if (addrDto.Id.HasValue)
+            if (addrDto?.Id.HasValue == true)
             {
-                var addr = updateRequestDto.ServiceAddress;
-                if (addr == null) throw new KeyNotFoundException("Endereço não encontrado");
-
+                var addr = addrDto 
+                    ?? throw new KeyNotFoundException("Endereço não encontrado");
                 if (!string.IsNullOrWhiteSpace(addrDto.Street)) addr.Street = addrDto.Street;
                 updateRequestDto.ServiceAddress = addr;
                 updateRequestDto.ServiceAddressId = addr.Id;
             }
             else
             {
-                var newAddr = AddressService.FromDto(addrDto);
-                _context.Addresses.Add(newAddr);
-                request.ServiceAddress = newAddr;
+                if (addrDto != null)
+                {
+                    var newAddr = AddressService.FromDto(addrDto);
+                    _context.Addresses.Add(newAddr);
+                    request.ServiceAddress = newAddr;
+                }
             }
         }
 
+        await _context.SaveChangesAsync();
         return ToDto(request);
     }
 
@@ -204,5 +204,4 @@ public class RequestService(TecoContext context) : IRequestService
             Status = request.Status.ToString()
         };
     }
-
 }

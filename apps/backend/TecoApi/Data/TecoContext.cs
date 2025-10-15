@@ -83,6 +83,36 @@ public class TecoContext(DbContextOptions<TecoContext> options) : DbContext(opti
             .HasForeignKey(r => r.RequesterId)
             .OnDelete(DeleteBehavior.Cascade);
 
+        modelBuilder.Entity<Request>()
+            .HasIndex(r => r.RequesterId);
+        modelBuilder.Entity<Request>()
+            .HasIndex(r => r.Status);
+        modelBuilder.Entity<Request>()
+            .HasIndex(r => r.CreatedAt);
+        modelBuilder.Entity<Request>()
+            .HasIndex(r => r.Title);
+        
+        modelBuilder.Entity<Address>()
+            .HasIndex(a => a.Street);
+        modelBuilder.Entity<Address>()
+            .HasIndex(a => a.Number);
+
+        modelBuilder.Entity<User>()
+            .HasIndex(u => u.Email)
+            .IsUnique();
+        modelBuilder.Entity<User>()
+            .HasIndex(u => u.CPF)
+            .IsUnique();
+        modelBuilder.Entity<User>()
+            .HasIndex(r => r.CNPJ)
+            .IsUnique();
+
+        modelBuilder.Entity<Proposal>()
+            .HasIndex(p => p.RequestId);
+        modelBuilder.Entity<Proposal>()
+            .HasIndex(p => p.CreatedAt);
+        modelBuilder.Entity<Proposal>()
+            .HasIndex(p => p.ProviderId);
 
         base.OnModelCreating(modelBuilder);
     }
