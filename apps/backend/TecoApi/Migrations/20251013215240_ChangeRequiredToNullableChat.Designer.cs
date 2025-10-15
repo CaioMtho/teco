@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using TecoApi.Data;
@@ -11,9 +12,11 @@ using TecoApi.Data;
 namespace TecoApi.Migrations
 {
     [DbContext(typeof(TecoContext))]
-    partial class TecoContextModelSnapshot : ModelSnapshot
+    [Migration("20251013215240_ChangeRequiredToNullableChat")]
+    partial class ChangeRequiredToNullableChat
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -64,10 +67,6 @@ namespace TecoApi.Migrations
                         .HasColumnType("character varying(100)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("Number");
-
-                    b.HasIndex("Street");
 
                     b.ToTable("Addresses");
                 });
@@ -191,8 +190,6 @@ namespace TecoApi.Migrations
                     b.HasIndex("ChatMessageId")
                         .IsUnique();
 
-                    b.HasIndex("CreatedAt");
-
                     b.HasIndex("ProviderId");
 
                     b.HasIndex("RequestId");
@@ -274,16 +271,10 @@ namespace TecoApi.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CreatedAt");
-
                     b.HasIndex("RequesterId");
 
                     b.HasIndex("ServiceAddressId")
                         .IsUnique();
-
-                    b.HasIndex("Status");
-
-                    b.HasIndex("Title");
 
                     b.ToTable("Requests");
                 });
@@ -386,15 +377,6 @@ namespace TecoApi.Migrations
                         .HasColumnType("text");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("CNPJ")
-                        .IsUnique();
-
-                    b.HasIndex("CPF")
-                        .IsUnique();
-
-                    b.HasIndex("Email")
-                        .IsUnique();
 
                     b.HasIndex("PersonalAddressId")
                         .IsUnique();

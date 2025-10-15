@@ -1,3 +1,5 @@
+using TecoApi.Services.Interfaces;
+
 namespace TecoApi.Services;
 
 using Microsoft.EntityFrameworkCore;
