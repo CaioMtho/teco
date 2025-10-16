@@ -15,8 +15,6 @@ using TecoApi.Services.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
-Env.Load("../../../.env");
-
 var jwtKey = builder.Configuration["Jwt:Key"] ?? Environment.GetEnvironmentVariable("JWT_KEY");
 var jwtIssuer = builder.Configuration["Jwt:Issuer"] ?? Environment.GetEnvironmentVariable("JWT_ISSUER");
 var jwtAudience = builder.Configuration["Jwt:Audience"] ?? Environment.GetEnvironmentVariable("JWT_AUDIENCE");
