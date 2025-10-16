@@ -1,8 +1,5 @@
 FROM node:20
 
-ARG USER=node
-RUN useradd -m $USER || true
-
 WORKDIR /app
 
 ENV CI=true
@@ -13,9 +10,6 @@ COPY package.json pnpm-lock.yaml* ./
 RUN pnpm install --frozen-lockfile || pnpm install
 
 COPY . .
-
-RUN chown -R ${USER}:${USER} /app
-USER ${USER}
 
 EXPOSE 3000
 
