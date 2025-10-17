@@ -1,10 +1,12 @@
 {
   "name": "Teco Dev Container",
-  "build": {
-    "dockerfile": "Dockerfile"
-  },
+  "dockerComposeFile": ["../docker-compose.yml"],
+  "service": "web",
+  "workspaceFolder": "/app",
+  "runServices": ["backend", "web"],
+  "shutdownAction": "stopCompose",
   "settings": {
-    "terminal.integrated.defaultProfile.linux": "zsh",
+    "terminal.integrated.defaultProfile.linux": "bash",
     "editor.formatOnSave": true,
     "editor.codeActionsOnSave": {
       "source.fixAll.eslint": true
@@ -21,6 +23,6 @@
     "ms-dotnettools.vscodeintellicode-csharp"
   ],
   "forwardPorts": [3000, 5000],
-  "postCreateCommand": "pnpm install -r",
-  "remoteUser": "vscode"
+  "postCreateCommand": "pnpm install",
+  "remoteUser": "root"
 }
