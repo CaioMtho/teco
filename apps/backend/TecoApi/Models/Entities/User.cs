@@ -6,6 +6,8 @@ namespace TecoApi.Models.Entities;
 public class User
 {
     public long Id { get; set; }
+
+    public Guid? SupabaseId { get; set; }
     
     [StringLength(11, MinimumLength = 11, ErrorMessage = "CPF deve conter 11 dígitos")]
     public string? CPF { get; set; }
@@ -15,9 +17,6 @@ public class User
 
     [EmailAddress(ErrorMessage = "Email em formato inválido")]
     public required string Email { get; set; }
-
-    [MinLength(6, ErrorMessage = "Senha deve conter no mínimo 6 caracteres")]
-    public required string Password { get; set; }
 
     [MinLength(4, ErrorMessage = "Nome deve conter no mínimo 4 caracteres")]
     public required string Name { get; set; }
