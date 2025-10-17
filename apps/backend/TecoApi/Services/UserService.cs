@@ -123,6 +123,17 @@ public class UserService(TecoContext context) : IUserService
         return ToDto(user);
     }
 
+    public async Task<UserDto> GetUserBySupabaseIdAsync(string supabaseId)
+    {
+        var guid = Guid.Parse(supabaseId);
+        var user = await _users
+            .AsNoTracking()
+            .Include(u => u.PersonalAddress)
+            .FirstOrDefaultAsync(u => u.SupabaseId == guid)
+            ?? throw new KeyNotFoundException("Usuário não encontrado");
+        return ToDto(user);
+    }
+
     public async Task<List<ReviewDto>> GetReviewsByProviderAsync(long id)
     {
         var reviews = await _context.Reviews

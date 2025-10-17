@@ -24,7 +24,7 @@ public class GlobalExceptionMiddleware(RequestDelegate next, ILogger<GlobalExcep
 
     private async Task HandleExceptionAsync(HttpContext context, Exception ex)
     {
-        _logger.LogError(ex, "Exceção Não-Tratada: {Message}", ex.Message);
+        _logger.LogError(ex, "Exceção: {Message}", ex.Message);
 
         var (statusCode, message, details) = ex switch
         {
@@ -41,6 +41,11 @@ public class GlobalExceptionMiddleware(RequestDelegate next, ILogger<GlobalExcep
             KeyNotFoundException argEx => (
                 (int)HttpStatusCode.NotFound,
                 "Recurso não encontrado",
+                _env.IsDevelopment() ? argEx.Message : null
+            ),
+            FormatException argEx => (
+                (int)HttpStatusCode.BadRequest,
+                "Formato de dado inválido",
                 _env.IsDevelopment() ? argEx.Message : null
             ),
             _ => (
