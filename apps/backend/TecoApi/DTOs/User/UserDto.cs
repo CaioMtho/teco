@@ -6,6 +6,7 @@ using TecoApi.DTOs.Address;
 public class UserDto
 {
     public long Id { get; set; }
+    public Guid? SupabaseId { get; set; }
     public string Name { get; set; } = null!;
     public string Email { get; set; } = null!;
     public Role Role { get; set; }

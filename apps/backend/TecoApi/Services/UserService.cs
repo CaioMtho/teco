@@ -2,7 +2,6 @@ using Microsoft.EntityFrameworkCore;
 using TecoApi.Data;
 using TecoApi.DTOs.Review;
 using TecoApi.DTOs.User;
-using TecoApi.Helpers;
 using TecoApi.Models.Entities;
 using TecoApi.Models.Enums;
 using TecoApi.Services.Interfaces;
@@ -54,7 +53,6 @@ public class UserService(TecoContext context) : IUserService
             CNPJ = createUserDto.CNPJ,
             Email = createUserDto.Email,
             Role = createUserDto.Role,
-            Password = BCrypt.Net.BCrypt.HashPassword(createUserDto.Password, workFactor: 12),
             PersonalAddress = createUserDto.PersonalAddress != null
                 ? AddressService.FromDto(createUserDto.PersonalAddress)
                 : null
@@ -122,6 +120,17 @@ public class UserService(TecoContext context) : IUserService
         }
 
         await _context.SaveChangesAsync();
+        return ToDto(user);
+    }
+
+    public async Task<UserDto> GetUserBySupabaseIdAsync(string supabaseId)
+    {
+        var guid = Guid.Parse(supabaseId);
+        var user = await _users
+            .AsNoTracking()
+            .Include(u => u.PersonalAddress)
+            .FirstOrDefaultAsync(u => u.SupabaseId == guid)
+            ?? throw new KeyNotFoundException("Usuário não encontrado");
         return ToDto(user);
     }
 

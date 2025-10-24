@@ -39,7 +39,6 @@ public class TecoContext(DbContextOptions<TecoContext> options) : DbContext(opti
             .HasForeignKey<Proposal>(p => p.ChatMessageId)
             .OnDelete(DeleteBehavior.SetNull);
 
-
         modelBuilder.Entity<User>()
             .HasOne(u => u.Provider)
             .WithOne(p => p.User)
@@ -53,16 +52,19 @@ public class TecoContext(DbContextOptions<TecoContext> options) : DbContext(opti
         modelBuilder.Entity<User>()
             .HasOne(u => u.PersonalAddress)
             .WithOne()
+            .HasForeignKey<User>(u => u.PersonalAddressId)
             .OnDelete(DeleteBehavior.SetNull);
 
         modelBuilder.Entity<Provider>()
             .HasOne(p => p.WorkAddress)
             .WithOne()
+            .HasForeignKey<Provider>(p => p.WorkAddressId)
             .OnDelete(DeleteBehavior.SetNull);
 
         modelBuilder.Entity<Request>()
             .HasOne(r => r.ServiceAddress)
             .WithOne()
+            .HasForeignKey<Request>(r => r.ServiceAddressId)
             .OnDelete(DeleteBehavior.SetNull);
 
         modelBuilder.Entity<Order>()
@@ -91,7 +93,7 @@ public class TecoContext(DbContextOptions<TecoContext> options) : DbContext(opti
             .HasIndex(r => r.CreatedAt);
         modelBuilder.Entity<Request>()
             .HasIndex(r => r.Title);
-        
+
         modelBuilder.Entity<Address>()
             .HasIndex(a => a.Street);
         modelBuilder.Entity<Address>()
@@ -104,8 +106,32 @@ public class TecoContext(DbContextOptions<TecoContext> options) : DbContext(opti
             .HasIndex(u => u.CPF)
             .IsUnique();
         modelBuilder.Entity<User>()
-            .HasIndex(r => r.CNPJ)
+            .HasIndex(u => u.CNPJ)
             .IsUnique();
+
+        modelBuilder.Entity<User>()
+            .Property(u => u.SupabaseId)
+            .HasColumnType("uuid");
+
+        modelBuilder.Entity<User>()
+            .HasIndex(u => u.SupabaseId)
+            .IsUnique()
+            .HasDatabaseName("IX_Users_SupabaseUserId");
+
+        modelBuilder.Entity<User>()
+            .HasIndex(u => u.PersonalAddressId)
+            .IsUnique()
+            .HasDatabaseName("IX_Users_PersonalAddressId");
+
+        modelBuilder.Entity<Provider>()
+            .HasIndex(p => p.WorkAddressId)
+            .IsUnique()
+            .HasDatabaseName("IX_Providers_WorkAddressId");
+
+        modelBuilder.Entity<Request>()
+            .HasIndex(r => r.ServiceAddressId)
+            .IsUnique()
+            .HasDatabaseName("IX_Requests_ServiceAddressId");
 
         modelBuilder.Entity<Proposal>()
             .HasIndex(p => p.RequestId);
@@ -116,4 +142,5 @@ public class TecoContext(DbContextOptions<TecoContext> options) : DbContext(opti
 
         base.OnModelCreating(modelBuilder);
     }
+
 }
