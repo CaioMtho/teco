@@ -1,0 +1,56 @@
+name: CI/CD → OCI (main)
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  OCIR_REGISTRY: ${{ secrets.OCIR_REGISTRY }}
+  OCI_NAMESPACE: ${{ secrets.OCI_NAMESPACE }}
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to OCIR
+        run: |
+          echo "${{ secrets.OCI_AUTH_TOKEN }}" | docker login -u "${{ secrets.OCI_USERNAME }}" --password-stdin ${{ env.OCIR_REGISTRY }}
+
+      - name: Build and push frontend (prod)
+        run: |
+          docker build -f apps/web/Dockerfile.prod -t ${{ env.OCIR_REGISTRY }}/${{ env.OCI_NAMESPACE }}/teco:${{ github.sha }} apps/web
+          docker push ${{ env.OCIR_REGISTRY }}/${{ env.OCI_NAMESPACE }}/teco:${{ github.sha }}
+          docker tag ${{ env.OCIR_REGISTRY }}/${{ env.OCI_NAMESPACE }}/teco:${{ github.sha }} ${{ env.OCIR_REGISTRY }}/${{ env.OCI_NAMESPACE }}/teco:latest
+          docker push ${{ env.OCIR_REGISTRY }}/${{ env.OCI_NAMESPACE }}/teco:latest
+
+      - name: Build and push backend (prod)
+        run: |
+          docker build -f apps/backend/Dockerfile.prod -t ${{ env.OCIR_REGISTRY }}/${{ env.OCI_NAMESPACE }}/teco-api:${{ github.sha }} apps/backend
+          docker push ${{ env.OCIR_REGISTRY }}/${{ env.OCI_NAMESPACE }}/teco-api:${{ github.sha }}
+          docker tag ${{ env.OCIR_REGISTRY }}/${{ env.OCI_NAMESPACE }}/teco-api:${{ github.sha }} ${{ env.OCIR_REGISTRY }}/${{ env.OCI_NAMESPACE }}/teco-api:latest
+          docker push ${{ env.OCIR_REGISTRY }}/${{ env.OCI_NAMESPACE }}/teco-api:latest
+
+      - name: Deploy to server via SSH
+        uses: appleboy/ssh-action@v0.1.7
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SERVER_SSH_PORT || 22 }}
+          script: |
+            set -e
+            mkdir -p ~/deploy
+            cd ~/deploy
+            docker-compose -f docker-compose.prod.yml pull
+            docker-compose -f docker-compose.prod.yml up -d --remove-orphans
+            docker image prune -f
