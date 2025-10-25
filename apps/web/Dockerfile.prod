@@ -1,0 +1,20 @@
+FROM node:20-bullseye AS builder
+WORKDIR /app
+
+COPY package.json pnpm-lock.yaml ./
+RUN npm install -g pnpm@8 && pnpm install --frozen-lockfile
+
+COPY . .
+RUN pnpm build
+
+FROM node:20-bullseye-slim AS runner
+WORKDIR /app
+RUN npm install -g serve
+
+COPY --from=builder /app/.next /app/.next
+COPY --from=builder /app/public /app/public
+COPY --from=builder /app/package.json /app/
+
+EXPOSE 3000
+ENV NODE_ENV=production
+CMD ["serve", "-s", ".next", "-l", "3000"]
