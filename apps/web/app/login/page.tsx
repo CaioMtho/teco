@@ -1,5 +1,3 @@
-import Image from 'next/image'
-
 export default function Page(){
     return (
         <div className="bg-gray-100 h-full flex justify-center">

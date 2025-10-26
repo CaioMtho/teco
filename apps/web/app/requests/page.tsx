@@ -1,4 +1,3 @@
-import Link from 'next/link'
 import RequestCard from '../components/request-card'
 
 export default function Page() {
