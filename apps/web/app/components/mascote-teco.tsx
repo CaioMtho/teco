@@ -23,23 +23,28 @@ export default function MascoteTeco(): React.JSX.Element {
     function getEyeCenter(eye: SVGGElement) {
       try {
         const bbox = eye.getBBox();
-        const svgRect = svg.getBoundingClientRect();
+        if (!svg) return { x: 0, y: 0 };
+        const svgRect: DOMRect = svg.getBoundingClientRect();
         const viewBox = svg.viewBox.baseVal;
-        
+
+        if (!viewBox || viewBox.width === 0 || viewBox.height === 0) {
+          return { x: 0, y: 0 };
+        }
+
         const eyeCenterX = bbox.x + bbox.width / 2;
         const eyeCenterY = bbox.y + bbox.height / 2;
-        
+
         const scaleX = svgRect.width / viewBox.width;
         const scaleY = svgRect.height / viewBox.height;
-        
+
         const adjustedY = viewBox.height - eyeCenterY;
-        
-        const screenX = svgRect.left + (eyeCenterX * scaleX);
-        const screenY = svgRect.top + (adjustedY * scaleY);
-        
+
+        const screenX = svgRect.left + eyeCenterX * scaleX;
+        const screenY = svgRect.top + adjustedY * scaleY;
+
         return { x: screenX, y: screenY };
       } catch (error) {
-        console.warn('Erro ao calcular centro do olho:', error);
+        console.warn('Erro ao calcular o centro do olho:', error);
         return { x: 0, y: 0 };
       }
     }
@@ -48,7 +53,9 @@ export default function MascoteTeco(): React.JSX.Element {
       if (!svg) return;
       
       try {
+        if (eyeLeft === null) return;
         const leftCenter = getEyeCenter(eyeLeft);
+        if (eyeRight === null) return;
         const rightCenter = getEyeCenter(eyeRight);
 
         const dxL = mouseX - leftCenter.x;

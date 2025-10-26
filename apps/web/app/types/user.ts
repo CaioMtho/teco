@@ -1,5 +1,6 @@
 import Address from "@/types/address";
 import Requester from "@/types/requester";
+import Provider  from "./provider";
 interface User {
     id: number;
     name: string;

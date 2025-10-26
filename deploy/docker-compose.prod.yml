@@ -1,47 +1,78 @@
-version: "3.8"
-
 services:
   proxy:
-    image: nginx:stable
-    restart: always
+    image: nginx:stable-alpine
+    container_name: teco-proxy
+    restart: unless-stopped
     ports:
       - "80:80"
       - "443:443"
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./nginx/conf.d/:/etc/nginx/conf.d/:ro
-      - ./nginx/letsencrypt:/etc/letsencrypt
+      - ./nginx/letsencrypt:/etc/letsencrypt:ro
+      - nginx-cache:/var/cache/nginx
+
     depends_on:
-      - web
-      - backend
+      [web, backend]
     networks:
       - teco-net
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   web:
-    image: ${OCIR_REGISTRY}/${OCI_NAMESPACE}/teco:${WEB_TAG:-latest}
-    restart: always
+    image: ${OCIR_REGISTRY}/${OCI_NAMESPACE}/teco:${WEB_TAG}
+    container_name: teco-web
+    restart: unless-stopped
     env_file:
       - /etc/teco/.env
+    environment:
+      - PORT=3000
     expose:
       - "3000"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://127.0.0.1:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
     networks:
       - teco-net
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   backend:
-    image: ${OCIR_REGISTRY}/${OCI_NAMESPACE}/teco-api:${BACKEND_TAG:-latest}
-    restart: always
+    image: ${OCIR_REGISTRY}/${OCI_NAMESPACE}/teco-api:${BACKEND_TAG}
+    container_name: teco-backend
+    restart: unless-stopped
     env_file:
       - /etc/teco/.env
     expose:
       - "5000"
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://127.0.0.1:5000/health || exit 1"]
-      interval: 30s
+      test: ["CMD", "curl", "-f", "http://127.0.0.1:5000/api/v1/health"]
       timeout: 5s
       retries: 3
+      start_period: 30s
     networks:
       - teco-net
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
 networks:
   teco-net:
     driver: bridge
+    name: teco-network
+
+volumes:
+  nginx-cache:
+    name: teco-nginx-cache

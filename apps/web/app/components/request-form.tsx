@@ -1,12 +1,13 @@
-'use client'
-import React, { useState } from 'react';
-import Modal from '../components/modal';
-import { useModal } from '../hooks/use-modal';
+"use client"
+import React, { useState } from 'react'
+import Image from 'next/image'
+import Modal from '../components/modal'
+import { useModal } from '../hooks/use-modal'
 
 interface FormData {
-  title: string;
-  description: string;
-  photos: File[];
+  title: string
+  description: string
+  photos: File[]
 }
 
 export default function RequestForm(): React.JSX.Element {
@@ -14,74 +15,68 @@ export default function RequestForm(): React.JSX.Element {
     title: '',
     description: '',
     photos: []
-  });
+  })
 
-  const [dragOver, setDragOver] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [dragOver, setDragOver] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
-  // Hook do modal
-  const { modalState, closeModal, showSuccess, showError, showConfirm, showWarning } = useModal();
+  const { modalState, closeModal, showSuccess, showError, showConfirm, showWarning } = useModal()
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
+    const { name, value } = e.target
     setFormData(prev => ({
       ...prev,
       [name]: value
-    }));
-  };
+    }))
+  }
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || []);
-    const maxSize = 10 * 1024 * 1024; // 10MB
-    const maxFiles = 5;
-    
-    const invalidFiles = files.filter(file => file.size > maxSize);
+    const files = Array.from(e.target.files || [])
+    const maxSize = 10 * 1024 * 1024
+    const maxFiles = 5
+
+    const invalidFiles = files.filter(file => file.size > maxSize)
     if (invalidFiles.length > 0) {
       showWarning(
-        'Arquivos Muito Grandes', 
+        'Arquivos Muito Grandes',
         `${invalidFiles.length} arquivo(s) excedem o limite de 10MB e foram ignorados.`
-      );
+      )
     }
-    
-    const validFiles = files.filter(file => file.size <= maxSize);
-    
+
+    const validFiles = files.filter(file => file.size <= maxSize)
+
     if (formData.photos.length + validFiles.length > maxFiles) {
       showWarning(
         'Limite de Arquivos',
         `Você pode anexar no máximo ${maxFiles} fotos. Alguns arquivos foram ignorados.`
-      );
-      const availableSlots = maxFiles - formData.photos.length;
-      const filesToAdd = validFiles.slice(0, availableSlots);
+      )
+      const availableSlots = maxFiles - formData.photos.length
+      const filesToAdd = validFiles.slice(0, availableSlots)
       setFormData(prev => ({
         ...prev,
         photos: [...prev.photos, ...filesToAdd]
-      }));
+      }))
     } else {
       setFormData(prev => ({
         ...prev,
         photos: [...prev.photos, ...validFiles]
-      }));
+      }))
     }
-  };
+  }
 
   const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault();
-    setDragOver(false);
-    const files = Array.from(e.dataTransfer.files);
-    
-    const imageFiles = files.filter(file => file.type.startsWith('image/'));
+    e.preventDefault()
+    setDragOver(false)
+    const files = Array.from(e.dataTransfer.files)
+
+    const imageFiles = files.filter(file => file.type.startsWith('image/'))
     if (imageFiles.length !== files.length) {
-      showWarning('Arquivos Inválidos', 'Apenas imagens são aceitas (PNG, JPG, GIF).');
+      showWarning('Arquivos Inválidos', 'Apenas imagens são aceitas (PNG, JPG, GIF).')
     }
-    
-    if (imageFiles.length > 0) {
-      // Simular evento de input para reutilizar a lógica de validação
-      handleFileChange({ target: { files: imageFiles } } as any);
-    }
-  };
+  }
 
   const removePhoto = (index: number) => {
-    const photo = formData.photos[index];
+    const photo = formData.photos[index]
     showConfirm(
       'Remover Foto',
       `Deseja remover a foto "${photo.name}"?`,
@@ -89,104 +84,102 @@ export default function RequestForm(): React.JSX.Element {
         setFormData(prev => ({
           ...prev,
           photos: prev.photos.filter((_, i) => i !== index)
-        }));
+        }))
       }
-    );
-  };
+    )
+  }
 
   const validateForm = (): boolean => {
     if (!formData.title.trim()) {
-      showError('Campo Obrigatório', 'Por favor, preencha o título da solicitação.');
-      return false;
+      showError('Campo Obrigatório', 'Por favor, preencha o título da solicitação.')
+      return false
     }
-    
+
     if (formData.title.trim().length < 10) {
-      showError('Título Muito Curto', 'O título deve ter pelo menos 10 caracteres.');
-      return false;
+      showError('Título Muito Curto', 'O título deve ter pelo menos 10 caracteres.')
+      return false
     }
-    
+
     if (!formData.description.trim()) {
-      showError('Campo Obrigatório', 'Por favor, descreva o problema que você está enfrentando.');
-      return false;
+      showError('Campo Obrigatório', 'Por favor, descreva o problema que você está enfrentando.')
+      return false
     }
-    
+
     if (formData.description.trim().length < 20) {
-      showError('Descrição Muito Curta', 'A descrição deve ter pelo menos 20 caracteres para melhor atendimento.');
-      return false;
+      showError('Descrição Muito Curta', 'A descrição deve ter pelo menos 20 caracteres para melhor atendimento.')
+      return false
     }
-    
-    return true;
-  };
+
+    return true
+  }
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    
+    e.preventDefault()
+
     if (!validateForm()) {
-      return;
+      return
     }
 
-    const photoCount = formData.photos.length;
-    const photoText = photoCount > 0 ? `\n\n${photoCount} foto(s) anexada(s)` : '';
-    
+    const photoCount = formData.photos.length
+    const photoText = photoCount > 0 ? `\n\n${photoCount} foto(s) anexada(s)` : ''
+
     showConfirm(
       'Confirmar Solicitação',
       `Deseja criar a solicitação "${formData.title}"?${photoText}\n\nApós a confirmação, profissionais poderão visualizar e enviar propostas.`,
       async () => {
-        setIsSubmitting(true);
-        
+        setIsSubmitting(true)
+
         try {
-          // Simular envio para API
-          await new Promise(resolve => setTimeout(resolve, 2000));
-          
+          await new Promise(resolve => setTimeout(resolve, 2000))
+
           if (true) {
             showSuccess(
               'Solicitação Criada com Sucesso!',
               'Sua solicitação foi publicada. Você receberá notificações quando profissionais enviarem propostas.'
-            );
-            
+            )
+
             setFormData({
               title: '',
               description: '',
               photos: []
-            });
+            })
           } else {
             showError(
               'Erro ao Criar Solicitação',
               'Ocorreu um erro inesperado. Tente novamente em alguns instantes.'
-            );
+            )
           }
         } catch (error) {
-          showError('Erro de Conexão', 'Verifique sua conexão com a internet e tente novamente.');
+          showError('Erro de Conexão', 'Verifique sua conexão com a internet e tente novamente.')
+          console.log('Erro ao criar solicitação:', error)
         } finally {
-          setIsSubmitting(false);
+          setIsSubmitting(false)
         }
       },
       'Criar Solicitação'
-    );
-  };
+    )
+  }
 
   const handleSaveDraft = () => {
     if (!formData.title.trim() && !formData.description.trim()) {
-      showWarning('Rascunho Vazio', 'Preencha pelo menos o título ou descrição para salvar como rascunho.');
-      return;
+      showWarning('Rascunho Vazio', 'Preencha pelo menos o título ou descrição para salvar como rascunho.')
+      return
     }
 
     showConfirm(
       'Salvar Rascunho',
       'Deseja salvar esta solicitação como rascunho? Você poderá editá-la e publicar depois.',
       () => {
-        // Simular salvamento
         setTimeout(() => {
-          showSuccess('Rascunho Salvo', 'Sua solicitação foi salva como rascunho.');
-        }, 500);
+          showSuccess('Rascunho Salvo', 'Sua solicitação foi salva como rascunho.')
+        }, 500)
       },
       'Salvar'
-    );
-  };
+    )
+  }
 
   return (
     <>
-      {/* Componente Modal */}
       <Modal
         isOpen={modalState.isOpen}
         onClose={closeModal}
@@ -206,7 +199,6 @@ export default function RequestForm(): React.JSX.Element {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-8">
-          {/* Título */}
           <div className="space-y-2">
             <label htmlFor="title" className="block text-sm font-bold text-neutral-700">
               Título *
@@ -225,7 +217,6 @@ export default function RequestForm(): React.JSX.Element {
             <p className="text-xs text-gray-500">Mínimo 10 caracteres ({formData.title.length}/10)</p>
           </div>
 
-          {/* Descrição */}
           <div className="space-y-2">
             <label htmlFor="description" className="block text-sm font-bold text-neutral-700">
               Descrição do Problema *
@@ -247,22 +238,21 @@ export default function RequestForm(): React.JSX.Element {
             </div>
           </div>
 
-          {/* Upload de Fotos */}
           <div className="space-y-4">
             <label className="block text-sm font-bold text-neutral-700">
               Fotos (opcional)
             </label>
             <p className="text-sm text-gray-500">Envie fotos que possam ajudar a entender o problema. Máximo 5 fotos.</p>
-            
-            <div 
+
+            <div
               className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
-                dragOver 
-                  ? 'border-neutral-400 bg-neutral-50' 
+                dragOver
+                  ? 'border-neutral-400 bg-neutral-50'
                   : 'border-gray-300 hover:border-neutral-400'
               } ${isSubmitting ? 'opacity-50 pointer-events-none' : ''}`}
               onDragOver={(e) => {
-                e.preventDefault();
-                setDragOver(true);
+                e.preventDefault()
+                setDragOver(true)
               }}
               onDragLeave={() => setDragOver(false)}
               onDrop={handleDrop}
@@ -289,16 +279,18 @@ export default function RequestForm(): React.JSX.Element {
               </div>
             </div>
 
-            {/* Preview das fotos */}
             {formData.photos.length > 0 && (
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 {formData.photos.map((photo, index) => (
                   <div key={index} className="relative group">
-                    <div className="aspect-square bg-gray-100 rounded-lg flex items-center justify-center overflow-hidden">
-                      <img
+                    <div className="relative aspect-square bg-gray-100 rounded-lg flex items-center justify-center overflow-hidden">
+                      <Image
                         src={URL.createObjectURL(photo)}
                         alt={`Preview ${index + 1}`}
-                        className="w-full h-full object-cover"
+                        fill
+                        className="object-cover"
+                        unoptimized
+                        sizes="100vw"
                       />
                     </div>
                     <button
@@ -316,11 +308,10 @@ export default function RequestForm(): React.JSX.Element {
             )}
           </div>
 
-          {/* Status Info */}
           <div className="bg-neutral-50 p-4 rounded-lg border-l-4 border-neutral-600">
             <div className="flex items-center">
               <svg className="w-5 h-5 text-neutral-600 mr-2" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
               </svg>
               <span className="text-sm text-neutral-700 font-medium">Seu pedido será aberto</span>
             </div>
@@ -345,7 +336,7 @@ export default function RequestForm(): React.JSX.Element {
                 'Criar Solicitação'
               )}
             </button>
-            
+
             <button
               type="button"
               onClick={handleSaveDraft}
@@ -358,5 +349,5 @@ export default function RequestForm(): React.JSX.Element {
         </form>
       </div>
     </>
-  );
+  )
 }
