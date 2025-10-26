@@ -8,6 +8,7 @@ on:
 env:
   OCIR_REGISTRY: ${{ secrets.OCIR_REGISTRY }}
   OCI_NAMESPACE: ${{ secrets.OCI_NAMESPACE }}
+  IMAGE_TAG: ${{ github.sha }}
 
 jobs:
   build-and-push:
@@ -28,20 +29,37 @@ jobs:
 
       - name: Build and push frontend (prod)
         run: |
-          docker build -f apps/web/Dockerfile.prod -t ${{ env.OCIR_REGISTRY }}/${{ env.OCI_NAMESPACE }}/teco:${{ github.sha }} apps/web
-          docker push ${{ env.OCIR_REGISTRY }}/${{ env.OCI_NAMESPACE }}/teco:${{ github.sha }}
-          docker tag ${{ env.OCIR_REGISTRY }}/${{ env.OCI_NAMESPACE }}/teco:${{ github.sha }} ${{ env.OCIR_REGISTRY }}/${{ env.OCI_NAMESPACE }}/teco:latest
+          docker build \
+            -f apps/web/Dockerfile.prod \
+            -t ${{ env.OCIR_REGISTRY }}/${{ env.OCI_NAMESPACE }}/teco:${{ env.IMAGE_TAG }} \
+            -t ${{ env.OCIR_REGISTRY }}/${{ env.OCI_NAMESPACE }}/teco:latest \
+            apps/web
+          docker push ${{ env.OCIR_REGISTRY }}/${{ env.OCI_NAMESPACE }}/teco:${{ env.IMAGE_TAG }}
           docker push ${{ env.OCIR_REGISTRY }}/${{ env.OCI_NAMESPACE }}/teco:latest
 
       - name: Build and push backend (prod)
         run: |
-          docker build -f apps/backend/Dockerfile.prod -t ${{ env.OCIR_REGISTRY }}/${{ env.OCI_NAMESPACE }}/teco-api:${{ github.sha }} apps/backend
-          docker push ${{ env.OCIR_REGISTRY }}/${{ env.OCI_NAMESPACE }}/teco-api:${{ github.sha }}
-          docker tag ${{ env.OCIR_REGISTRY }}/${{ env.OCI_NAMESPACE }}/teco-api:${{ github.sha }} ${{ env.OCIR_REGISTRY }}/${{ env.OCI_NAMESPACE }}/teco-api:latest
+          docker build \
+            -f apps/backend/Dockerfile.prod \
+            -t ${{ env.OCIR_REGISTRY }}/${{ env.OCI_NAMESPACE }}/teco-api:${{ env.IMAGE_TAG }} \
+            -t ${{ env.OCIR_REGISTRY }}/${{ env.OCI_NAMESPACE }}/teco-api:latest \
+            apps/backend
+          docker push ${{ env.OCIR_REGISTRY }}/${{ env.OCI_NAMESPACE }}/teco-api:${{ env.IMAGE_TAG }}
           docker push ${{ env.OCIR_REGISTRY }}/${{ env.OCI_NAMESPACE }}/teco-api:latest
 
+      - name: Copy deployment files to server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SERVER_SSH_PORT || 22 }}
+          source: "deploy/docker-compose.prod.yml,deploy/nginx/"
+          target: "~/deploy/"
+          strip_components: 1
+
       - name: Deploy to server via SSH
-        uses: appleboy/ssh-action@v0.1.7
+        uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_SSH_USER }}
@@ -49,8 +67,24 @@ jobs:
           port: ${{ secrets.SERVER_SSH_PORT || 22 }}
           script: |
             set -e
-            mkdir -p ~/deploy
+            
+            # Login no OCIR
+            echo "${{ secrets.OCI_AUTH_TOKEN }}" | docker login -u "${{ secrets.OCI_USERNAME }}" --password-stdin ${{ secrets.OCIR_REGISTRY }}
+            
+            # Exportar variáveis para o docker-compose
+            export OCIR_REGISTRY=${{ secrets.OCIR_REGISTRY }}
+            export OCI_NAMESPACE=${{ secrets.OCI_NAMESPACE }}
+            export WEB_TAG=latest
+            export BACKEND_TAG=latest
+            
+            # Deploy
             cd ~/deploy
             docker-compose -f docker-compose.prod.yml pull
             docker-compose -f docker-compose.prod.yml up -d --remove-orphans
-            docker image prune -f
+            
+            # Limpeza
+            docker image prune -af --filter "until=24h"
+            
+            # Verificar status
+            echo "=== Status dos containers ==="
+            docker-compose -f docker-compose.prod.yml ps
