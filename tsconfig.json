@@ -13,15 +13,12 @@
     "isolatedModules": true,
     "jsx": "preserve",
     "incremental": true,
-    "plugins": [
-      {
-        "name": "next"
-      }
-    ],
+    "plugins": [{ "name": "next" }],
     "baseUrl": ".",
     "paths": {
       "@/*": ["app/*"]
-    }
+    },
+    "types": ["next", "next/types/global"]
   },
   "include": [
     "next-env.d.ts",
