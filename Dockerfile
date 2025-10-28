@@ -1,16 +1,19 @@
-FROM node:20
+FROM node:20-alpine
 
-WORKDIR /app
+RUN apk add --no-cache git sudo
 
-ENV CI=true
-
-RUN npm install -g pnpm@8
-
-COPY package.json pnpm-lock.yaml* ./
-RUN pnpm install --frozen-lockfile || pnpm install
+WORKDIR /workspace
 
 COPY . .
 
+RUN npm install -g pnpm
+
+RUN pnpm install
+
+RUN chown -R node:node /workspace
+
+USER node
+
 EXPOSE 3000
 
-CMD ["pnpm", "dev", "--", "-H", "0.0.0.0", "-p", "3000"]
+CMD ["pnpm", "dev"]

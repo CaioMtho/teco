@@ -1,28 +1,54 @@
 {
   "name": "Teco Dev Container",
-  "dockerComposeFile": ["../docker-compose.yml"],
-  "service": "web",
-  "workspaceFolder": "/app",
-  "runServices": ["backend", "web"],
-  "shutdownAction": "stopCompose",
-  "settings": {
-    "terminal.integrated.defaultProfile.linux": "bash",
-    "editor.formatOnSave": true,
-    "editor.codeActionsOnSave": {
-      "source.fixAll.eslint": true
+  "dockerFile": "../Dockerfile",
+  "context": "..",
+  "workspaceFolder": "/workspace",
+
+  "remoteUser": "node",
+  "containerUser": "node",
+
+  "forwardPorts": [3000],
+  "portsAttributes": {
+    "3000": {
+      "label": "Next.js App",
+      "onAutoForward": "notify"
     }
   },
-  "extensions": [
-    "esbenp.prettier-vscode",
-    "dbaeumer.vscode-eslint",
-    "bradlc.vscode-tailwindcss",
-    "ms-dotnettools.csharp",
-    "ms-vscode.vscode-typescript-next",
-    "humao.rest-client",
-    "ms-dotnettools.csdevkit",
-    "ms-dotnettools.vscodeintellicode-csharp"
-  ],
-  "forwardPorts": [3000, 5000],
-  "postCreateCommand": "pnpm install",
-  "remoteUser": "root"
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "bradlc.vscode-tailwindcss",
+        "ms-azuretools.vscode-docker",
+        "GitHub.copilot",
+        "GitHub.copilot-chat",
+        "unifiedjs.vscode-mdx"
+      ],
+      "settings": {
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "editor.codeActionsOnSave": {
+          "source.fixAll.eslint": "explicit"
+        },
+        "eslint.validate": [
+          "javascript",
+          "javascriptreact",
+          "typescript",
+          "typescriptreact"
+        ],
+        "typescript.tsdk": "node_modules/typescript/lib",
+        "tailwindCSS.experimental.classRegex": [
+          ["cva\\(([^)]*)\\)", "[\"'`]([^\"'`]*).*?[\"'`]"]
+        ]
+      }
+    }
+  },
+
+  "features": {},
+
+  "containerEnv": {
+    "NODE_ENV": "development"
+  }
 }
