@@ -1,8 +1,8 @@
 'use client';
 import { useFormState, useFormStatus } from 'react-dom';
-import { login } from '../login/actions';
+import { resetPassword } from '../forgot-password/actions';
 import Link from 'next/link';
-import { Mail, Lock, AlertCircle, ChevronRight } from 'lucide-react';
+import { Mail, AlertCircle, CheckCircle, ChevronRight, ArrowLeft } from 'lucide-react';
 
 function SubmitButton() {
   const { pending } = useFormStatus();
@@ -17,10 +17,10 @@ function SubmitButton() {
                  flex items-center justify-center"
     >
       {pending ? (
-        'Entrando...'
+        'Enviando...'
       ) : (
         <>
-          Entrar
+          Enviar link de recuperação
           <ChevronRight className="w-5 h-5 ml-2" />
         </>
       )}
@@ -28,8 +28,8 @@ function SubmitButton() {
   );
 }
 
-export function LoginForm() {
-  const [state, formAction] = useFormState(login, null);
+export function ForgotPasswordForm() {
+  const [state, formAction] = useFormState(resetPassword, null);
   
   return (
     <div className="min-h-screen bg-linear-to-br from-gray-50 via-white to-gray-100 flex items-center justify-center p-4">
@@ -38,12 +38,15 @@ export function LoginForm() {
           {/* Header */}
           <div className="bg-linear-to-r from-gray-700 to-gray-800 p-8 text-center">
             <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Lock className="w-8 h-8 text-white" />
+              <Mail className="w-8 h-8 text-white" />
             </div>
-            <h1 className="text-3xl font-bold text-white mb-2">Bem-vindo de volta!</h1>
-            <p className="text-gray-300 text-sm">Entre para acessar sua conta</p>
+            <h1 className="text-3xl font-bold text-white mb-2">Esqueceu a senha?</h1>
+            <p className="text-gray-300 text-sm">
+              Não se preocupe! Digite seu email e enviaremos um link para redefinir sua senha.
+            </p>
           </div>
 
+          {/* Form */}
           <div className="p-8">
             <form action={formAction} className="space-y-5">
               {state?.error && (
@@ -55,10 +58,24 @@ export function LoginForm() {
                 </div>
               )}
 
+              {state?.message && (
+                <div className="bg-green-50 border-l-4 border-green-500 p-4 rounded">
+                  <div className="flex items-start">
+                    <CheckCircle className="w-5 h-5 text-green-500 mr-2 shrink-0 mt-0.5" />
+                    <div>
+                      <p className="text-sm text-green-700 font-medium">{state.message}</p>
+                      <p className="text-xs text-green-600 mt-1">
+                        Verifique sua caixa de entrada e spam.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               <div>
                 <label className="block text-gray-700 font-medium mb-2 text-sm">
                   <Mail className="w-4 h-4 inline mr-2" />
-                  Email
+                  Email cadastrado
                 </label>
                 <input 
                   type="email"
@@ -69,32 +86,9 @@ export function LoginForm() {
                            hover:border-gray-300"
                   placeholder="seu@email.com"
                 />
-              </div>
-
-              <div>
-                <label className="block text-gray-700 font-medium mb-2 text-sm">
-                  <Lock className="w-4 h-4 inline mr-2" />
-                  Senha
-                </label>
-                <input 
-                  type="password"
-                  name="password"
-                  required
-                  className="w-full bg-gray-50 border-2 border-gray-200 rounded-lg px-4 py-3 
-                           focus:outline-none focus:border-gray-800 transition-colors
-                           hover:border-gray-300"
-                  placeholder="••••••••"
-                />
-              </div>
-
-              <div className="flex items-center justify-between text-sm flex-wrap gap-2">
-                <label className="flex items-center">
-                  <input type="checkbox" className="mr-2" />
-                  <span className="text-gray-600">Lembrar-me</span>
-                </label>
-                <Link href="/forgot-password" className="text-gray-800 hover:text-gray-600 font-medium">
-                  Esqueceu a senha?
-                </Link>
+                <p className="text-xs text-gray-500 mt-2">
+                  Enviaremos um link de recuperação para este email.
+                </p>
               </div>
 
               <SubmitButton />
@@ -105,21 +99,17 @@ export function LoginForm() {
               <div className="absolute inset-0 flex items-center">
                 <div className="w-full border-t border-gray-200"></div>
               </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="px-4 bg-white text-gray-500">ou</span>
-              </div>
             </div>
 
+            {/* Back to login */}
             <div className="text-center">
-              <p className="text-gray-600 text-sm">
-                Ainda não tem uma conta?{' '}
-                <Link 
-                  href="/signup"
-                  className="text-gray-800 hover:text-gray-600 font-semibold"
-                >
-                  Cadastre-se aqui
-                </Link>
-              </p>
+              <Link 
+                href="/login"
+                className="inline-flex items-center text-gray-800 hover:text-gray-600 font-semibold text-sm"
+              >
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Voltar para o login
+              </Link>
             </div>
           </div>
         </div>
