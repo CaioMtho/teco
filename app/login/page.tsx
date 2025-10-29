@@ -1,25 +1,26 @@
-export default function Page(){
-    return (
-        <div className="bg-gray-100 h-full flex justify-center">
-            <div className='bg-white border-2 border-gray-200 object-center w-auto my-48 px-5'>
-                <div className=''>
-                <h1 className='text-center text-4xl p-2'>login</h1>
-                <div className='w-full'>
-                    <div >
-                        <label>email:</label>
-                        <input type='email' className='bg-gray-100 border-1 border-gray-200 block'></input>
-                    </div>
-                    <div>
-                        <label>senha:</label>
-                        <input type='password' className='bg-gray-100 border-1 border-gray-200 block'></input>
-                    </div>
-                    <div className='w-full mb-3 mt-1 flex justify-end'>
-                        <button className="p-3 py-2 mx-auto mt-2 text-black font-medium transition-colors 
-                    bg-white border rounded-md hover:bg-gray-100 ">entrar</button>
-                    </div>
-                </div>
-            </div>
-            </div>
+import { LoginForm } from '../components/login-form';
+import { SignupForm } from '../components/signup-form';
+
+export default function Page() {
+  return (
+    <div className="bg-gray-100 min-h-screen flex items-center justify-center py-12 px-4">
+      <div className="flex flex-col lg:flex-row gap-8 w-full max-w-5xl">
+        <div className="flex-1 flex justify-center">
+          <LoginForm />
         </div>
-    )
+
+        <div className="hidden lg:flex items-center">
+          <div className="w-px h-96 bg-gray-300"></div>
+        </div>
+
+        <div className="lg:hidden flex justify-center">
+          <span className="text-gray-500 font-medium">OU</span>
+        </div>
+
+        <div className="flex-1 flex justify-center">
+          <SignupForm />
+        </div>
+      </div>
+    </div>
+  );
 }
