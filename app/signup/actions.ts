@@ -9,21 +9,20 @@ type ActionState = {
     message?: string
 } | null
 
-export async function login(prevState: ActionState, formData: FormData){
-    const email = formData.get('email') as string
-    const password = formData.get('password') as string
+export async function signup(prevState: ActionState, formData: FormData){
+    const email = formData.get('email') as string;
+    const password = formData.get('password') as string;
 
     const supabase = await createServerSupabaseClient();
 
-    const {error} = await supabase.auth.signInWithPassword({
+    const {error} = await supabase.auth.signUp({
         email,
-        password
+        password,
     });
 
-    if(error) {
+    if (error) {
         return {error: error.message};
     }
 
-    revalidatePath('/', 'layout');
-    redirect('/dashboard')
+    return { message: 'Você receberá um email para confirmação.'}
 }
