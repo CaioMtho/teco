@@ -1,9 +1,9 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useFormState, useFormStatus } from 'react-dom';
 import { updatePassword } from '../reset-password/actions';
 import { useRouter } from 'next/navigation';
-import { Lock, AlertCircle, CheckCircle, ChevronRight } from 'lucide-react';
+import { Lock, AlertCircle, CheckCircle, ChevronRight, Loader2 } from 'lucide-react';
 
 function SubmitButton({ passwordsMatch }: { passwordsMatch: boolean }) {
   const { pending } = useFormStatus();
@@ -11,7 +11,7 @@ function SubmitButton({ passwordsMatch }: { passwordsMatch: boolean }) {
     <button 
       type="submit" 
       disabled={pending || !passwordsMatch}
-      className="w-full bg-linear-to-r from-gray-700 to-gray-800 text-white px-6 py-3 
+      className="w-full bg-gradient-to-r from-gray-700 to-gray-800 text-white px-6 py-3 
                  rounded-lg font-semibold hover:from-gray-800 hover:to-gray-900 
                  transition-all duration-200 shadow-lg hover:shadow-xl
                  disabled:opacity-50 disabled:cursor-not-allowed
@@ -34,7 +34,33 @@ export function ResetPasswordForm() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [passwordError, setPasswordError] = useState('');
+  const [isValidating, setIsValidating] = useState(true);
+  const [hasSession, setHasSession] = useState(false);
   const router = useRouter();
+
+  // Verificar se há uma sessão válida ao carregar
+  useEffect(() => {
+    const checkSession = async () => {
+      try {
+        const response = await fetch('/api/auth/check-session');
+        const data = await response.json();
+        
+        if (data.hasSession) {
+          setHasSession(true);
+        } else {
+          // Sem sessão, redirecionar para forgot-password
+          router.push('/forgot-password?error=session-expired');
+        }
+      } catch (error) {
+        console.error('Erro ao verificar sessão:', error);
+        router.push('/forgot-password?error=session-check-failed');
+      } finally {
+        setIsValidating(false);
+      }
+    };
+
+    checkSession();
+  }, [router]);
 
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newPassword = e.target.value;
@@ -60,17 +86,35 @@ export function ResetPasswordForm() {
 
   const passwordsMatch = password === confirmPassword && password.length >= 6;
 
+  // Redirecionar após sucesso
   if (state?.message) {
     setTimeout(() => {
       router.push('/login');
     }, 3000);
   }
 
+  // Mostrar loading enquanto valida sessão
+  if (isValidating) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 flex items-center justify-center p-4">
+        <div className="text-center">
+          <Loader2 className="w-12 h-12 text-gray-700 animate-spin mx-auto mb-4" />
+          <p className="text-gray-600">Validando sua sessão...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!hasSession) {
+    return null; // Redirecionamento em andamento
+  }
+
   return (
-    <div className="min-h-screen bg-linear-to-br from-gray-50 via-white to-gray-100 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
-          <div className="bg-linear-to-r from-gray-700 to-gray-800 p-8 text-center">
+          {/* Header */}
+          <div className="bg-gradient-to-r from-gray-700 to-gray-800 p-8 text-center">
             <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
               <Lock className="w-8 h-8 text-white" />
             </div>
@@ -80,12 +124,13 @@ export function ResetPasswordForm() {
             </p>
           </div>
 
+          {/* Form */}
           <div className="p-8">
             <form action={formAction} className="space-y-5">
               {state?.error && (
                 <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded">
                   <div className="flex items-center">
-                    <AlertCircle className="w-5 h-5 text-red-500 mr-2 shrink-0" />
+                    <AlertCircle className="w-5 h-5 text-red-500 mr-2 flex-shrink-0" />
                     <p className="text-sm text-red-700">{state.error}</p>
                   </div>
                 </div>
@@ -94,7 +139,7 @@ export function ResetPasswordForm() {
               {state?.message && (
                 <div className="bg-green-50 border-l-4 border-green-500 p-4 rounded">
                   <div className="flex items-start">
-                    <CheckCircle className="w-5 h-5 text-green-500 mr-2 shrink-0 mt-0.5" />
+                    <CheckCircle className="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
                     <div>
                       <p className="text-sm text-green-700 font-medium">{state.message}</p>
                       <p className="text-xs text-green-600 mt-1">
@@ -145,13 +190,13 @@ export function ResetPasswordForm() {
                 />
                 {passwordError && confirmPassword && (
                   <div className="flex items-center mt-2">
-                    <AlertCircle className="w-4 h-4 text-red-500 mr-1 shrink-0" />
+                    <AlertCircle className="w-4 h-4 text-red-500 mr-1 flex-shrink-0" />
                     <p className="text-xs text-red-600">{passwordError}</p>
                   </div>
                 )}
                 {passwordsMatch && (
                   <div className="flex items-center mt-2">
-                    <CheckCircle className="w-4 h-4 text-green-500 mr-1 shrink-0" />
+                    <CheckCircle className="w-4 h-4 text-green-500 mr-1 flex-shrink-0" />
                     <p className="text-xs text-green-600">As senhas coincidem</p>
                   </div>
                 )}
@@ -159,7 +204,7 @@ export function ResetPasswordForm() {
 
               <div className="bg-blue-50 border-l-4 border-blue-500 p-4 rounded">
                 <div className="flex items-start">
-                  <AlertCircle className="w-5 h-5 text-blue-500 mr-2 shrink-0 mt-0.5" />
+                  <AlertCircle className="w-5 h-5 text-blue-500 mr-2 flex-shrink-0 mt-0.5" />
                   <p className="text-xs text-blue-700">
                     <strong>Dica de segurança:</strong> Use uma senha forte com letras maiúsculas, 
                     minúsculas, números e símbolos.
