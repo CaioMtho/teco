@@ -3,6 +3,8 @@ import { useFormState, useFormStatus } from 'react-dom';
 import { resetPassword } from '../forgot-password/actions';
 import Link from 'next/link';
 import { Mail, AlertCircle, CheckCircle, ChevronRight, ArrowLeft } from 'lucide-react';
+import { useSearchParams } from 'next/navigation';
+import { Suspense } from 'react';
 
 function SubmitButton() {
   const { pending } = useFormStatus();
@@ -10,7 +12,7 @@ function SubmitButton() {
     <button 
       type="submit" 
       disabled={pending}
-      className="w-full bg-linear-to-r from-gray-700 to-gray-800 text-white px-6 py-3 
+      className="w-full bg-gradient-to-r from-gray-700 to-gray-800 text-white px-6 py-3 
                  rounded-lg font-semibold hover:from-gray-800 hover:to-gray-900 
                  transition-all duration-200 shadow-lg hover:shadow-xl
                  disabled:opacity-50 disabled:cursor-not-allowed
@@ -32,11 +34,11 @@ export function ForgotPasswordForm() {
   const [state, formAction] = useFormState(resetPassword, null);
   
   return (
-    <div className="min-h-screen bg-linear-to-br from-gray-50 via-white to-gray-100 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
           {/* Header */}
-          <div className="bg-linear-to-r from-gray-700 to-gray-800 p-8 text-center">
+          <div className="bg-gradient-to-r from-gray-700 to-gray-800 p-8 text-center">
             <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
               <Mail className="w-8 h-8 text-white" />
             </div>
@@ -46,13 +48,12 @@ export function ForgotPasswordForm() {
             </p>
           </div>
 
-          {/* Form */}
           <div className="p-8">
             <form action={formAction} className="space-y-5">
               {state?.error && (
                 <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded">
                   <div className="flex items-center">
-                    <AlertCircle className="w-5 h-5 text-red-500 mr-2 shrink-0" />
+                    <AlertCircle className="w-5 h-5 text-red-500 mr-2 flex-shrink-0" />
                     <p className="text-sm text-red-700">{state.error}</p>
                   </div>
                 </div>
@@ -61,7 +62,7 @@ export function ForgotPasswordForm() {
               {state?.message && (
                 <div className="bg-green-50 border-l-4 border-green-500 p-4 rounded">
                   <div className="flex items-start">
-                    <CheckCircle className="w-5 h-5 text-green-500 mr-2 shrink-0 mt-0.5" />
+                    <CheckCircle className="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
                     <div>
                       <p className="text-sm text-green-700 font-medium">{state.message}</p>
                       <p className="text-xs text-green-600 mt-1">
@@ -94,14 +95,12 @@ export function ForgotPasswordForm() {
               <SubmitButton />
             </form>
 
-            {/* Divider */}
             <div className="relative my-6">
               <div className="absolute inset-0 flex items-center">
                 <div className="w-full border-t border-gray-200"></div>
               </div>
             </div>
 
-            {/* Back to login */}
             <div className="text-center">
               <Link 
                 href="/login"
