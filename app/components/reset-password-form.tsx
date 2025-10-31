@@ -1,9 +1,9 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useFormState, useFormStatus } from 'react-dom';
 import { updatePassword } from '../reset-password/actions';
 import { useRouter } from 'next/navigation';
-import { Lock, AlertCircle, CheckCircle, ChevronRight, Loader2 } from 'lucide-react';
+import { Lock, AlertCircle, CheckCircle, ChevronRight } from 'lucide-react';
 
 function SubmitButton({ passwordsMatch }: { passwordsMatch: boolean }) {
   const { pending } = useFormStatus();
@@ -34,33 +34,7 @@ export function ResetPasswordForm() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [passwordError, setPasswordError] = useState('');
-  const [isValidating, setIsValidating] = useState(true);
-  const [hasSession, setHasSession] = useState(false);
   const router = useRouter();
-
-  // Verificar se há uma sessão válida ao carregar
-  useEffect(() => {
-    const checkSession = async () => {
-      try {
-        const response = await fetch('/api/auth/check-session');
-        const data = await response.json();
-        
-        if (data.hasSession) {
-          setHasSession(true);
-        } else {
-          // Sem sessão, redirecionar para forgot-password
-          router.push('/forgot-password?error=session-expired');
-        }
-      } catch (error) {
-        console.error('Erro ao verificar sessão:', error);
-        router.push('/forgot-password?error=session-check-failed');
-      } finally {
-        setIsValidating(false);
-      }
-    };
-
-    checkSession();
-  }, [router]);
 
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newPassword = e.target.value;
@@ -91,22 +65,6 @@ export function ResetPasswordForm() {
     setTimeout(() => {
       router.push('/login');
     }, 3000);
-  }
-
-  // Mostrar loading enquanto valida sessão
-  if (isValidating) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 flex items-center justify-center p-4">
-        <div className="text-center">
-          <Loader2 className="w-12 h-12 text-gray-700 animate-spin mx-auto mb-4" />
-          <p className="text-gray-600">Validando sua sessão...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (!hasSession) {
-    return null; // Redirecionamento em andamento
   }
 
   return (
