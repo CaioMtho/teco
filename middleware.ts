@@ -29,6 +29,14 @@ export async function middleware(request: NextRequest) {
     }
   );
 
+  if (request.nextUrl.pathname.startsWith('/auth/')) {
+    return supabaseResponse;
+  }
+
+  if (request.nextUrl.pathname === '/reset-password') {
+    return supabaseResponse;
+  }
+
   const { data: { user } } = await supabase.auth.getUser();
 
   if (request.nextUrl.pathname.startsWith('/dashboard') && !user) {
