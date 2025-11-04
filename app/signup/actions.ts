@@ -1,26 +1,27 @@
-'use server';
-
-import { createServerSupabaseClient } from "../../lib/supabase/server";
+'use server'
 
 type ActionState = {
-    error?: string;
-    message?: string
+  error?: string
+  message?: string
 } | null
 
-export async function signup(prevState: ActionState, formData: FormData){
-    const email = formData.get('email') as string;
-    const password = formData.get('password') as string;
+export async function signup(prevState: ActionState, formData: FormData) {
+  const email = formData.get('email') as string
+  const password = formData.get('password') as string
 
-    const supabase = await createServerSupabaseClient();
+  const res = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL}/api/signup`, {
+    method: 'POST',
+    body: JSON.stringify({ email, password }),
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  })
 
-    const {error} = await supabase.auth.signUp({
-        email,
-        password,
-    });
+  const data = await res.json()
 
-    if (error) {
-        return {error: error.message};
-    }
+  if (!res.ok) {
+    return { error: data.error }
+  }
 
-    return { message: 'Você receberá um email para confirmação.'}
+  return { message: data.message }
 }
