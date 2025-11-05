@@ -1,7 +1,7 @@
 'use client';
 import { useState } from 'react';
 import { useFormState, useFormStatus } from 'react-dom';
-import { updatePassword } from '../reset-password/actions';
+import { updatePassword } from '../app/reset-password/actions';
 import { useRouter } from 'next/navigation';
 import { Lock, AlertCircle, CheckCircle, ChevronRight } from 'lucide-react';
 
