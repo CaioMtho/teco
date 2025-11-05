@@ -55,10 +55,12 @@ export async function POST(request: Request) {
     }
 
     return NextResponse.redirect(new URL("/dashboard", request.url));
-  } catch (err: any) {
-    return NextResponse.json(
-      { error: err?.message ?? "Erro interno no servidor" },
-      { status: 500 }
-    );
+  } catch (err: unknown) {
+    let message = "Erro interno do servidor";
+    if(err instanceof Error){
+        message = err.message;
+    }
+
+    return NextResponse.json({error: message}, {status: 500});
   }
 }
