@@ -1,39 +1,19 @@
 import { NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
-import { createServerSupabaseClient } from "../../../lib/supabase/server"; // ajuste se necessário
+import { createServerSupabaseClient } from "../../../lib/supabase/server";
 
-type Body = {
-  email?: string;
-  password?: string;
-};
+interface LoginRequest {
+  email: string;
+  password: string;
+}
 
 export async function POST(request: Request) {
   try {
-    let email: string | null = null;
-    let password: string | null = null;
+    const body: LoginRequest = await request.json();
 
-    const contentType = request.headers.get("content-type") || "";
-
-    if (contentType.includes("application/json")) {
-      const json = (await request.json()) as Body;
-      email = json.email ?? null;
-      password = json.password ?? null;
-    } else if (contentType.includes("form")) {
-      const form = await request.formData();
-      email = (form.get("email") as string) ?? null;
-      password = (form.get("password") as string) ?? null;
-    } else {
-      try {
-        const json = (await request.json()) as Body;
-        email = json.email ?? null;
-        password = json.password ?? null;
-      } catch {
-      }
-    }
-
-    if (!email || !password) {
+    if (!body.email || !body.password) {
       return NextResponse.json(
-        { error: "email e password são obrigatórios" },
+        { error: "Email e password são obrigatórios" },
         { status: 400 }
       );
     }
@@ -41,26 +21,19 @@ export async function POST(request: Request) {
     const supabase = await createServerSupabaseClient();
 
     const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
+      email: body.email,
+      password: body.password,
     });
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 401 });
     }
 
-    try {
-      revalidatePath("/", "layout");
-    } catch {
-    }
+    revalidatePath("/", "layout");
 
-    return NextResponse.redirect(new URL("/dashboard", request.url));
+    return NextResponse.json({ success: true }, { status: 200 });
   } catch (err: unknown) {
-    let message = "Erro interno do servidor";
-    if(err instanceof Error){
-        message = err.message;
-    }
-
-    return NextResponse.json({error: message}, {status: 500});
+    const message = err instanceof Error ? err.message : "Erro interno do servidor";
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }
