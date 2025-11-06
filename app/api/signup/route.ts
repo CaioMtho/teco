@@ -62,11 +62,12 @@ export async function POST(req: Request) {
             { message: "Você receberá um email de confirmação" },
             { status: 201 }
         );
-    } catch (error: any) {
-        console.error('Signup error:', error);
-        return NextResponse.json(
-            { error: error.message || "Erro ao criar perfil" },
-            { status: 500 }
-        );
+    } catch (error: unknown) {
+        let message = "Ocorreu um erro ao criar usuário";
+        if(error instanceof Error){
+            message = error.message;
+        }
+
+        return NextResponse.json({error: message}, {status: 500});
     }
 }
