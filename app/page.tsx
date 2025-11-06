@@ -1,4 +1,4 @@
-import MascoteTeco from "./components/mascote-teco";
+import MascoteTeco from "../components/mascote-teco";
 import Link from "next/link";
 
 export default function Home() {

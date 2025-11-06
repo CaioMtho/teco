@@ -1,6 +1,6 @@
 'use client';
 import { useFormState, useFormStatus } from 'react-dom';
-import { resetPassword } from '../forgot-password/actions';
+import { resetPassword } from '../app/forgot-password/actions';
 import Link from 'next/link';
 import { Mail, AlertCircle, CheckCircle, ChevronRight, ArrowLeft } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';

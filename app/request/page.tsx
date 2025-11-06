@@ -1,4 +1,4 @@
-import RequestForm from '../components/request-form'
+import RequestForm from '../../components/request-form'
 
 export default function Page(){
     return (

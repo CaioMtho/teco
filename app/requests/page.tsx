@@ -1,4 +1,4 @@
-import RequestCard from '../components/request-card'
+import RequestCard from '../../components/request-card'
 
 export default function Page() {
   return (
