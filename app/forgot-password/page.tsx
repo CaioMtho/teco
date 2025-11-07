@@ -81,7 +81,7 @@ export default function ForgotPasswordPage() {
                         </div>
                     </CardContent>
                     <CardFooter className="flex flex-col gap-4">
-                        <Button type="submit" className="w-full" disabled={loading}>
+                        <Button type="submit" className="w-full mt-3" disabled={loading}>
                             {loading ? (
                                 <>
                                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
