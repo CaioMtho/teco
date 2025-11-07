@@ -29,10 +29,12 @@ export async function POST(req: Request) {
             { message: "Verifique seu email para redefinir a senha" },
             { status: 200 }
         );
-    } catch (error: any) {
-        return NextResponse.json(
-            { error: error.message || "Erro interno no servidor" },
-            { status: 500 }
-        );
+    } catch (error) {
+        let message = "Ocorreu um erro ao redefinir senha";
+        if(error instanceof Error){
+            message = error.message;
+        }
+
+        return NextResponse.json({ message: message}, { status: 500});
     }
 }
