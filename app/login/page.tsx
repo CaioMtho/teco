@@ -104,7 +104,10 @@ export default function LoginPage() {
                 'Entrar'
               )}
             </Button>
-            <p className="text-sm text-center text-gray-600 mt-3">
+            <Link href='/forgot-password' className='text-blue-600 hover:underline mt-3'>
+              Esqueci a senha
+            </Link>
+            <p className="text-sm text-center text-gray-600 mt-8">
               Não tem uma conta?{' '}
               <Link href="/signup" className="text-blue-600 hover:underline">
                 Cadastre-se
