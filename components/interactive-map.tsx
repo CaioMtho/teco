@@ -3,7 +3,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import { Icon, LatLng, Map as LeafletMap } from 'leaflet';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../app/components/ui/card';
+import { Card, CardHeader, CardTitle, CardDescription } from '../app/components/ui/card';
 import { Button } from '../app/components/ui/button';
 import { MapPin, MessageCircle, Loader2 } from 'lucide-react';
 import 'leaflet/dist/leaflet.css';
@@ -87,20 +87,29 @@ export function InteractiveMap({ onStartChat }: InteractiveMapProps) {
             navigator.geolocation.getCurrentPosition(
                 (position) => {
                     const { latitude, longitude } = position.coords;
+                    console.log('Localização obtida:', { latitude, longitude });
                     const location = new LatLng(latitude, longitude);
                     setUserLocation(location);
                     fetchNearbyRequests(latitude, longitude);
                 },
-                () => {
+                (err) => {
+                    console.error('Erro de geolocalização:', err);
                     setError('Não foi possível obter sua localização');
-                    setLoading(false);
                     const defaultLocation = new LatLng(-23.5505, -46.6333);
                     setUserLocation(defaultLocation);
                     fetchNearbyRequests(-23.5505, -46.6333);
+                    setLoading(false);
+                },
+                {
+                    enableHighAccuracy: true,
+                    timeout: 10000,
+                    maximumAge: 0
                 }
             );
         } else {
             setError('Geolocalização não suportada');
+            const defaultLocation = new LatLng(-23.5505, -46.6333);
+            setUserLocation(defaultLocation);
             setLoading(false);
         }
     }, []);
@@ -190,7 +199,7 @@ export function InteractiveMap({ onStartChat }: InteractiveMapProps) {
                 </MapContainer>
             )}
 
-            <div className="absolute top-4 right-4 z-1000 bg-white rounded-lg shadow-lg p-3">
+            <div className="absolute top-4 right-4 z-[1000] bg-white rounded-lg shadow-lg p-3">
                 <div className="flex items-center gap-2 text-sm">
                     <MapPin className="h-4 w-4 text-neutral-600" />
                     <span className="font-medium">{requests.length}</span>
