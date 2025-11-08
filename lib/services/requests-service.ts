@@ -40,7 +40,7 @@ export async function getRequests(
   const from = (safePage - 1) * safePerPage
   const to = from + safePerPage - 1
 
-  let query: any = supabase
+  let query = supabase
     .from('requests')
     .select('*', { count: 'exact' })
 
