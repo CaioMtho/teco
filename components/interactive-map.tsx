@@ -1,10 +1,8 @@
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-
 'use client';
 
 import { useEffect, useState, useRef } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
-import { Icon, LatLng } from 'leaflet';
+import { Icon, LatLng, Map as LeafletMap } from 'leaflet';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../app/components/ui/card';
 import { Button } from '../app/components/ui/button';
 import { MapPin, MessageCircle, Loader2 } from 'lucide-react';
@@ -50,7 +48,7 @@ export function InteractiveMap({ onStartChat }: InteractiveMapProps) {
     const [requests, setRequests] = useState<RequestLocation[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const mapRef = useRef<any>(null);
+    const mapRef = useRef<LeafletMap | null>(null);
 
     const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number): number => {
         const R = 6371;
@@ -68,9 +66,9 @@ export function InteractiveMap({ onStartChat }: InteractiveMapProps) {
             const response = await fetch('/api/requests');
             if (!response.ok) throw new Error('Erro ao buscar requisições');
 
-            const data = await response.json();
+            const data: RequestLocation[] = await response.json();
             
-            const nearby = data.filter((request: any) => {
+            const nearby = data.filter((request) => {
                 if (!request.latitude || !request.longitude) return false;
                 const distance = calculateDistance(latitude, longitude, request.latitude, request.longitude);
                 return distance <= 30;
@@ -93,7 +91,7 @@ export function InteractiveMap({ onStartChat }: InteractiveMapProps) {
                     setUserLocation(location);
                     fetchNearbyRequests(latitude, longitude);
                 },
-                (err) => {
+                () => {
                     setError('Não foi possível obter sua localização');
                     setLoading(false);
                     const defaultLocation = new LatLng(-23.5505, -46.6333);
