@@ -1,3 +1,4 @@
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 import { Database } from '../types/database.types'
 import { SupabaseClient } from '@supabase/supabase-js'
 import { getAddressesByUserIds } from './addresses-services';
