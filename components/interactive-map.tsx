@@ -1,11 +1,12 @@
 'use client';
 
 import { useEffect, useState, useRef, useCallback } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
-import { Icon, LatLng } from 'leaflet';
+import { MapContainer, TileLayer, Marker, Popup, useMap, CircleMarker } from 'react-leaflet';
+import { Icon, LatLng, divIcon } from 'leaflet';
+import { renderToStaticMarkup } from 'react-dom/server';
 import { Card, CardHeader, CardTitle, CardDescription } from '../app/components/ui/card';
 import { Button } from '../app/components/ui/button';
-import { MapPin, MessageCircle, Loader2, AlertCircle } from 'lucide-react';
+import { MapPin, MessageCircle, Loader2, AlertCircle, User } from 'lucide-react';
 import 'leaflet/dist/leaflet.css';
 
 interface RequestLocation {
@@ -32,56 +33,150 @@ interface LocationErrorEvent {
     message: string;
 }
 
-const userIcon = new Icon({
-    iconUrl: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAzMiAzMiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTYiIGN5PSIxNiIgcj0iMTIiIGZpbGw9IiMzYjgycmY2Ii8+CjxjaXJjbGUgY3g9IjE2IiBjeT0iMTYiIHI9IjgiIGZpbGw9IndoaXRlIi8+Cjwvc3ZnPg==',
-    iconSize: [32, 32],
-    iconAnchor: [16, 16],
-});
-
-const requestIcon = new Icon({
-    iconUrl: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCAzMiA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTE2IDQwQzE2IDQwIDMyIDI0IDMyIDE2QzMyIDcuMTYzNDQgMjQuODM2NiAwIDE2IDBDNy4xNjM0NCAwIDAgNy4xNjM0NCAwIDE2QzAgMjQgMTYgNDAgMTYgNDBaIiBmaWxsPSIjZWY0NDQ0Ii8+CjxjaXJjbGUgY3g9IjE2IiBjeT0iMTYiIHI9IjgiIGZpbGw9IndoaXRlIi8+Cjwvc3ZnPg==',
-    iconSize: [32, 40],
-    iconAnchor: [16, 40],
-    popupAnchor: [0, -40],
-});
-
 const DEFAULT_LOCATION = new LatLng(-23.5505, -46.6333);
 const SEARCH_RADIUS_KM = 30;
+
+const createUserIcon = () => {
+    const iconHtml = renderToStaticMarkup(
+        <div style={{
+            width: '32px',
+            height: '32px',
+            borderRadius: '50%',
+            backgroundColor: '#3b82f6',
+            border: '4px solid white',
+            boxShadow: '0 2px 4px rgba(0,0,0,0.3)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+        }}>
+            <User size={16} color="white" strokeWidth={3} />
+        </div>
+    );
+    
+    return divIcon({
+        html: iconHtml,
+        className: 'custom-user-icon',
+        iconSize: [32, 32],
+        iconAnchor: [16, 16],
+    });
+};
+
+const createRequestIcon = () => {
+    const iconHtml = renderToStaticMarkup(
+        <div style={{
+            width: '32px',
+            height: '40px',
+            position: 'relative'
+        }}>
+            <div style={{
+                width: '32px',
+                height: '32px',
+                borderRadius: '50% 50% 50% 0',
+                backgroundColor: '#ef4444',
+                border: '3px solid white',
+                boxShadow: '0 2px 6px rgba(0,0,0,0.3)',
+                transform: 'rotate(-45deg)',
+                position: 'absolute',
+                top: '0',
+                left: '0'
+            }}>
+                <div style={{
+                    position: 'absolute',
+                    top: '50%',
+                    left: '50%',
+                    transform: 'translate(-50%, -50%) rotate(45deg)',
+                    width: '12px',
+                    height: '12px',
+                    borderRadius: '50%',
+                    backgroundColor: 'white'
+                }} />
+            </div>
+        </div>
+    );
+    
+    return divIcon({
+        html: iconHtml,
+        className: 'custom-request-icon',
+        iconSize: [32, 40],
+        iconAnchor: [16, 40],
+        popupAnchor: [0, -40],
+    });
+};
 
 function LocationMarker({ onLocationFound }: { onLocationFound: (latlng: LatLng) => void }) {
     const map = useMap();
     const hasLocatedRef = useRef(false);
+    const timeoutRef = useRef<NodeJS.Timeout | null>(null);
     
     useEffect(() => {
         if (hasLocatedRef.current) return;
         
-        map.locate({
-            watch: false,
-            enableHighAccuracy: false,
-            timeout: 15000,
-            maximumAge: 60000
-        });
+        const tryGeolocation = async () => {
+            map.locate({
+                watch: false,
+                enableHighAccuracy: false,
+                timeout: 10000,
+                maximumAge: 300000 
+            });
+
+            timeoutRef.current = setTimeout(() => {
+                if (hasLocatedRef.current) return;
+                
+                if ('geolocation' in navigator) {
+                    navigator.geolocation.getCurrentPosition(
+                        (position) => {
+                            if (hasLocatedRef.current) return;
+                            hasLocatedRef.current = true;
+                            const latlng = new LatLng(position.coords.latitude, position.coords.longitude);
+                            onLocationFound(latlng);
+                            map.setView(latlng, 13);
+                        },
+                        (error) => {
+                            if (hasLocatedRef.current) return;
+                            hasLocatedRef.current = true;
+                            console.warn('Geolocalização falhou, usando localização padrão');
+                            onLocationFound(DEFAULT_LOCATION);
+                        },
+                        {
+                            enableHighAccuracy: false,
+                            timeout: 8000,
+                            maximumAge: 300000
+                        }
+                    );
+                } else {
+                    if (hasLocatedRef.current) return;
+                    hasLocatedRef.current = true;
+                    onLocationFound(DEFAULT_LOCATION);
+                }
+            }, 3000);
+        };
 
         function onLocationFoundHandler(e: LocationFoundEvent) {
             if (hasLocatedRef.current) return;
             hasLocatedRef.current = true;
+            
+            if (timeoutRef.current) {
+                clearTimeout(timeoutRef.current);
+            }
             
             onLocationFound(e.latlng);
             map.setView(e.latlng, 13);
         }
 
         function onLocationErrorHandler(e: LocationErrorEvent) {
-            if (hasLocatedRef.current) return;
-            hasLocatedRef.current = true;
-            
-            console.warn('Localização não disponível, usando padrão');
-            onLocationFound(DEFAULT_LOCATION);
+            // Não marca como located aqui, deixa o fallback do timeout funcionar
+            console.warn('Erro no map.locate, tentando fallback...');
         }
 
         map.on('locationfound', onLocationFoundHandler);
         map.on('locationerror', onLocationErrorHandler);
 
+        tryGeolocation();
+
         return () => {
+            if (timeoutRef.current) {
+                clearTimeout(timeoutRef.current);
+            }
             map.off('locationfound', onLocationFoundHandler);
             map.off('locationerror', onLocationErrorHandler);
         };
@@ -97,6 +192,8 @@ export function InteractiveMap({ onStartChat }: InteractiveMapProps) {
     const [error, setError] = useState<string | null>(null);
     const [locationReady, setLocationReady] = useState(false);
     const abortControllerRef = useRef<AbortController | null>(null);
+    const userIconRef = useRef(createUserIcon());
+    const requestIconRef = useRef(createRequestIcon());
 
     const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number): number => {
         const R = 6371;
@@ -201,13 +298,13 @@ export function InteractiveMap({ onStartChat }: InteractiveMapProps) {
             >
                 <TileLayer
                     attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                    url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
                 />
                 
                 <LocationMarker onLocationFound={handleLocationFound} />
 
                 {locationReady && (
-                    <Marker position={userLocation} icon={userIcon}>
+                    <Marker position={userLocation} icon={userIconRef.current}>
                         <Popup>
                             <div className="text-sm font-medium">Você está aqui</div>
                         </Popup>
@@ -219,7 +316,7 @@ export function InteractiveMap({ onStartChat }: InteractiveMapProps) {
                         <Marker
                             key={request.id}
                             position={new LatLng(request.latitude, request.longitude)}
-                            icon={requestIcon}
+                            icon={requestIconRef.current}
                         >
                             <Popup maxWidth={300}>
                                 <div className="space-y-2 p-2">
