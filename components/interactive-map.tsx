@@ -1,8 +1,8 @@
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
-import { Icon, LatLng, LocationEvent, ErrorEvent } from 'leaflet';
+import { Icon, LatLng } from 'leaflet';
 import { Card, CardHeader, CardTitle, CardDescription } from '../app/components/ui/card';
 import { Button } from '../app/components/ui/button';
 import { MapPin, MessageCircle, Loader2, AlertCircle } from 'lucide-react';
@@ -20,6 +20,16 @@ interface RequestLocation {
 
 interface InteractiveMapProps {
     onStartChat?: (requestId: string) => void;
+}
+
+interface LocationFoundEvent {
+    latlng: LatLng;
+    accuracy: number;
+}
+
+interface LocationErrorEvent {
+    code: number;
+    message: string;
 }
 
 const userIcon = new Icon({
@@ -40,16 +50,31 @@ const SEARCH_RADIUS_KM = 30;
 
 function LocationMarker({ onLocationFound }: { onLocationFound: (latlng: LatLng) => void }) {
     const map = useMap();
+    const hasLocatedRef = useRef(false);
     
     useEffect(() => {
-        map.locate({ watch: false, enableHighAccuracy: true, timeout: 10000, maximumAge: 0 });
+        if (hasLocatedRef.current) return;
+        
+        map.locate({
+            watch: false,
+            enableHighAccuracy: false,
+            timeout: 15000,
+            maximumAge: 60000
+        });
 
-        function onLocationFoundHandler(e: LocationEvent) {
+        function onLocationFoundHandler(e: LocationFoundEvent) {
+            if (hasLocatedRef.current) return;
+            hasLocatedRef.current = true;
+            
             onLocationFound(e.latlng);
-            map.flyTo(e.latlng, 13);
+            map.setView(e.latlng, 13);
         }
 
-        function onLocationErrorHandler(_: ErrorEvent) {
+        function onLocationErrorHandler(e: LocationErrorEvent) {
+            if (hasLocatedRef.current) return;
+            hasLocatedRef.current = true;
+            
+            console.warn('Localização não disponível, usando padrão');
             onLocationFound(DEFAULT_LOCATION);
         }
 
@@ -77,10 +102,11 @@ export function InteractiveMap({ onStartChat }: InteractiveMapProps) {
         const R = 6371;
         const dLat = (lat2 - lat1) * Math.PI / 180;
         const dLon = (lon2 - lon1) * Math.PI / 180;
-        const a = Math.sin(dLat / 2) ** 2 +
+        const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
             Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-            Math.sin(dLon / 2) ** 2;
-        return R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)));
+            Math.sin(dLon / 2) * Math.sin(dLon / 2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        return R * c;
     };
 
     const fetchNearbyRequests = async (latitude: number, longitude: number) => {
@@ -89,41 +115,71 @@ export function InteractiveMap({ onStartChat }: InteractiveMapProps) {
                 abortControllerRef.current.abort();
             }
 
-            const controller = new AbortController();
-            abortControllerRef.current = controller;
+            abortControllerRef.current = new AbortController();
 
-            const response = await fetch('/api/requests', { signal: controller.signal });
-            if (!response.ok) throw new Error(`Erro ${response.status}`);
+            const response = await fetch('/api/requests', {
+                signal: abortControllerRef.current.signal
+            });
+
+            if (!response.ok) {
+                throw new Error(`Erro ${response.status}: ${response.statusText}`);
+            }
 
             const data: RequestLocation[] = await response.json();
             
             const nearby = data.filter((request) => {
-                if (request.latitude === null || request.longitude === null) return false;
-                const distance = calculateDistance(latitude, longitude, request.latitude, request.longitude);
+                if (
+                    request.latitude === null || 
+                    request.longitude === null ||
+                    typeof request.latitude !== 'number' ||
+                    typeof request.longitude !== 'number' ||
+                    isNaN(request.latitude) ||
+                    isNaN(request.longitude)
+                ) {
+                    return false;
+                }
+
+                const distance = calculateDistance(
+                    latitude, 
+                    longitude, 
+                    request.latitude, 
+                    request.longitude
+                );
+                
                 return distance <= SEARCH_RADIUS_KM;
             });
 
             setRequests(nearby);
         } catch (err) {
-            if (err instanceof DOMException && err.name === 'AbortError') return;
+            if (err instanceof Error && err.name === 'AbortError') {
+                return;
+            }
+            
+            console.error('Erro ao buscar requisições:', err);
             setError('Não foi possível carregar as requisições próximas');
         } finally {
             setLoading(false);
         }
     };
 
-    const handleLocationFound = (latlng: LatLng) => {
+    const handleLocationFound = useCallback((latlng: LatLng) => {
         setUserLocation(latlng);
         setLocationReady(true);
         fetchNearbyRequests(latlng.lat, latlng.lng);
-    };
+    }, []);
 
     useEffect(() => {
-        return () => abortControllerRef.current?.abort();
+        return () => {
+            if (abortControllerRef.current) {
+                abortControllerRef.current.abort();
+            }
+        };
     }, []);
 
     const handleStartChat = (requestId: string) => {
-        onStartChat?.(requestId);
+        if (onStartChat) {
+            onStartChat(requestId);
+        }
     };
 
     return (
@@ -137,25 +193,56 @@ export function InteractiveMap({ onStartChat }: InteractiveMapProps) {
                 </div>
             )}
 
-            <MapContainer center={DEFAULT_LOCATION} zoom={13} className="w-full h-full" style={{ zIndex: 1 }}>
-                <TileLayer attribution='&copy; OpenStreetMap' url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+            <MapContainer
+                center={DEFAULT_LOCATION}
+                zoom={13}
+                className="w-full h-full"
+                style={{ zIndex: 1 }}
+            >
+                <TileLayer
+                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                />
+                
                 <LocationMarker onLocationFound={handleLocationFound} />
 
                 {locationReady && (
                     <Marker position={userLocation} icon={userIcon}>
-                        <Popup><div className="text-sm font-medium">Você está aqui</div></Popup>
+                        <Popup>
+                            <div className="text-sm font-medium">Você está aqui</div>
+                        </Popup>
                     </Marker>
                 )}
 
-                {requests.map((r) => (
-                    r.latitude !== null && r.longitude !== null && (
-                        <Marker key={r.id} position={new LatLng(r.latitude, r.longitude)} icon={requestIcon}>
+                {requests.map((request) => (
+                    request.latitude !== null && request.longitude !== null && (
+                        <Marker
+                            key={request.id}
+                            position={new LatLng(request.latitude, request.longitude)}
+                            icon={requestIcon}
+                        >
                             <Popup maxWidth={300}>
                                 <div className="space-y-2 p-2">
-                                    <h3 className="font-semibold text-base">{r.title}</h3>
-                                    <p className="text-sm text-neutral-600 mt-1 line-clamp-3">{r.description}</p>
-                                    <Button size="sm" className="w-full" onClick={() => handleStartChat(r.id)}>
-                                        <MessageCircle className="h-4 w-4 mr-2" /> Iniciar Chat
+                                    <div>
+                                        <h3 className="font-semibold text-base">{request.title}</h3>
+                                        <p className="text-sm text-neutral-600 mt-1 line-clamp-3">
+                                            {request.description}
+                                        </p>
+                                    </div>
+                                    <div className="text-xs text-neutral-500">
+                                        {new Date(request.created_at).toLocaleDateString('pt-BR', {
+                                            day: '2-digit',
+                                            month: '2-digit',
+                                            year: 'numeric',
+                                        })}
+                                    </div>
+                                    <Button
+                                        size="sm"
+                                        className="w-full"
+                                        onClick={() => handleStartChat(request.id)}
+                                    >
+                                        <MessageCircle className="h-4 w-4 mr-2" />
+                                        Iniciar Chat
                                     </Button>
                                 </div>
                             </Popup>
@@ -163,6 +250,26 @@ export function InteractiveMap({ onStartChat }: InteractiveMapProps) {
                     )
                 ))}
             </MapContainer>
+
+            {error && (
+                <div className="absolute top-4 left-4 z-[1000] bg-amber-50 border border-amber-200 rounded-lg shadow-lg p-3 max-w-xs">
+                    <div className="flex items-start gap-2">
+                        <AlertCircle className="h-4 w-4 text-amber-600 flex-shrink-0 mt-0.5" />
+                        <div className="text-xs text-amber-800">
+                            <p className="font-medium mb-1">Aviso</p>
+                            <p>{error}</p>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            <div className="absolute top-4 right-4 z-[1000] bg-white rounded-lg shadow-lg p-3">
+                <div className="flex items-center gap-2 text-sm">
+                    <MapPin className="h-4 w-4 text-neutral-600" />
+                    <span className="font-medium">{requests.length}</span>
+                    <span className="text-neutral-600">requisições próximas</span>
+                </div>
+            </div>
         </div>
     );
 }
