@@ -11,21 +11,60 @@ export async function POST(req: Request) {
   const supabase = await createServerSupabaseClient();
   
   try {
-    const body: RequestCreate = await req.json();
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
 
-    if (!body.description || !body.requester_id || !body.title) {
+    if (authError || !user) {
+      console.error('Auth error:', authError);
       return NextResponse.json(
-        { message: "Pedidos precisam ter descrição, id de usuário e título" },
+        { message: "Não autenticado", detail: authError?.message },
+        { status: 401 }
+      );
+    }
+
+    const body: Omit<RequestCreate, 'requester_id'> = await req.json();
+
+    if (!body.description || !body.title) {
+      return NextResponse.json(
+        { message: "Pedidos precisam ter descrição e título" },
         { status: 400 }
       );
     }
 
-    await createRequest(supabase, body);
+    const { data: profile, error: profileError } = await supabase
+      .from('profiles')
+      .select('id')
+      .eq('auth_id', user.id)
+      .single();
+
+    if (profileError || !profile) {
+      console.error('Profile error:', profileError);
+      return NextResponse.json(
+        { 
+          message: "Perfil de usuário não encontrado",
+          detail: profileError?.message,
+          auth_id: user.id
+        },
+        { status: 404 }
+      );
+    }
+
+    const requestData: RequestCreate = {
+      ...body,
+      requester_id: profile.id,
+    };
+
+    await createRequest(supabase, requestData);
     return NextResponse.json({ success: true }, { status: 201 });
   } catch (error) {
+    console.error('Request creation error:', error);
     const message = error instanceof Error ? error.message : "Erro desconhecido";
+    const stack = error instanceof Error ? error.stack : undefined;
     return NextResponse.json(
-      { message: "Ocorreu um erro ao criar o pedido", detail: message },
+      { 
+        message: "Ocorreu um erro ao criar o pedido", 
+        detail: message,
+        stack: process.env.NODE_ENV === 'development' ? stack : undefined
+      },
       { status: 500 }
     );
   }
