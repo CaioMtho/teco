@@ -7,9 +7,9 @@ export async function POST(req: Request) {
   const supabase = await createServerSupabaseClient();
 
   try {
-    const { data: { user } } = await supabase.auth.getUser();
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
 
-    if (!user) {
+    if (authError || !user) {
       return NextResponse.json(
         { message: "Não autenticado" },
         { status: 401 }
@@ -37,8 +37,21 @@ export async function POST(req: Request) {
       }
     }
 
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('id')
+      .eq('auth_id', user.id)
+      .single();
+
+    if (!profile) {
+      return NextResponse.json(
+        { message: "Perfil de usuário não encontrado" },
+        { status: 404 }
+      );
+    }
+
     const addressData: Database['public']['Tables']['addresses']['Insert'] = {
-      user_id: user.id,
+      user_id: profile.id,
       street: body.street,
       number: body.number,
       complement: body.complement || null,
