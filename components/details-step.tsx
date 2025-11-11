@@ -1,13 +1,13 @@
 'use client';
 
 import { useState } from 'react';
-import { Card } from '../app/components/ui/card';
-import { Button } from '../app/components/ui/button';
-import { Input } from '../app/components/ui/input';
-import { Label } from '../app/components/ui/label';
-import { Textarea } from '../app/components/ui/textarea';
+import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import { AlertCircle, Image as ImageIcon, X } from 'lucide-react';
-import { TriageData } from '../lib/types/triagem.types';
+import { TriageData } from '@/../lib/types/triagem.types';
 
 interface DetailsStepProps {
   triageData: TriageData;
@@ -118,7 +118,7 @@ export function DetailsStep({ triageData, onComplete, onBack }: DetailsStepProps
                   size="sm"
                   className="text-xs"
                 >
-                  Usar: "{suggestedTitle}"
+                  Usar: &ldquo;{suggestedTitle}&rdquo;
                 </Button>
               )}
             </div>
