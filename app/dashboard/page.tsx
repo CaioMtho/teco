@@ -5,6 +5,7 @@ import { supabase } from 'lib/supabase/client'
 import Modal from '../../components/modal'
 import { useModal } from '../../hooks/use-modal'
 import Chat from "components/chat"
+import Settings from "components/settings"
 import { Bolt } from 'lucide-react';
 
 export default function Page() {
@@ -31,9 +32,9 @@ export default function Page() {
   }
 
   return (
-    <div className="">
+    <div className="h-full">
       <h1 className='text-5xl pb-3 pt-6 ps-6'>Dashboard</h1>
-      <div id="dashboard" className="bg-white border-2 border-gray-200 rounded-sm mx-24 my-2 py-3 my-2 flex">
+      <div id="dashboard" className="bg-white border-2 border-gray-200 rounded-sm mx-24 my-2 py-3 mb-12 flex">
         <div id="left-side" className='ml-6'>
         
         <div className=''>
@@ -53,7 +54,7 @@ export default function Page() {
             </button>
 
               <Chat/>
-
+              <Settings/>
           </div>
         </div>
 
@@ -68,6 +69,7 @@ export default function Page() {
           <div className='flex'>
             <div className='bg-gray-200 w-md h-32 border rounded-md'></div>
             <div className='bg-gray-200 w-md h-32 ms-2 border rounded-md'></div>
+
           </div>
         </div>
       </div>

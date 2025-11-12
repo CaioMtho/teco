@@ -4,11 +4,14 @@
 import Message from "../components/message"
 import { Button } from "@/components/ui/button"
 
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from "@/components/ui/avatar"
+
+
+import { useState } from 'react';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Eye, EyeOff, Loader2 } from 'lucide-react';
+import Link from 'next/link';
+
 
 import {
   Dialog,
@@ -26,7 +29,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { MessageSquare } from 'lucide-react';
 
-export default function Chat() {
+export default function Settings() {
   return (
     <Dialog>
       <form>
@@ -35,30 +38,20 @@ export default function Chat() {
         </DialogTrigger>
 
         <DialogContent className="sm:max-w-[825px]">
-          <DialogHeader className="flex">
-            <Avatar>
-              <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
-              <AvatarFallback>CN</AvatarFallback>
-            </Avatar>
-            <DialogTitle>nome de usuario</DialogTitle>
+          <DialogHeader className="flex border-b">
+            <DialogTitle>Configurações</DialogTitle>
           </DialogHeader>
 
 
           <div className="">
-            <ScrollArea className="h-xl w-[775px] rounded-md border p-4">
-
-              <Message />
-              <Message />
-              <Message />
-              <Message />
-              
+            <ScrollArea className="h-xl w-[775px] p-4 border">
+   
             </ScrollArea>
           </div>
 
 
           <DialogFooter>
-            <Input id="campo-mensagem" name="campo-mensagem" defaultValue="" />
-            <Button type="submit">Enviar</Button>
+
           </DialogFooter>
         </DialogContent>
       </form>
