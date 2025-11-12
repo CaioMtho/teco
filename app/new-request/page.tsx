@@ -59,7 +59,7 @@ export default function NewRequestPage() {
   };
 
   const handleSubmitSuccess = () => {
-    router.push('/requests');
+    router.push('/dashboard');
   };
 
   return (
