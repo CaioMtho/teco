@@ -18,3 +18,17 @@ export async function insertAddress(
 
     return data;
 }
+
+export async function getAddressesByUserIds(
+  supabase: SupabaseClient<Database>,
+  userIds: string[]
+): Promise<AddressRow[]> {
+  if (!userIds?.length) return []
+  const { data, error } = await supabase
+    .from('addresses')
+    .select('*')
+    .in('user_id', userIds)
+
+  if (error) throw error
+  return (data ?? []) as AddressRow[]
+}

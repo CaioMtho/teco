@@ -15,7 +15,7 @@ export async function middleware(request: NextRequest) {
           return request.cookies.getAll();
         },
         setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value, options }) => 
+          cookiesToSet.forEach(({ name, value }) =>
             request.cookies.set(name, value)
           );
           supabaseResponse = NextResponse.next({
@@ -29,21 +29,32 @@ export async function middleware(request: NextRequest) {
     }
   );
 
-  if (request.nextUrl.pathname.startsWith('/auth/')) {
+  const publicPaths = ['/login', '/signup', '/forgot-password', '/reset-password'];
+  const apiPaths = ['/api/'];
+
+  if (apiPaths.some(path => request.nextUrl.pathname.startsWith(path))) {
     return supabaseResponse;
   }
 
-  if (request.nextUrl.pathname === '/reset-password') {
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+
+  if (authError || !user) {
+    if (publicPaths.some(path => request.nextUrl.pathname === path)) {
+      return supabaseResponse;
+    }
+
+    if (request.nextUrl.pathname.startsWith('/dashboard') || 
+        request.nextUrl.pathname.startsWith('/requests') ||
+        request.nextUrl.pathname.startsWith('/proposals') ||
+        request.nextUrl.pathname.startsWith('/orders') ||
+        request.nextUrl.pathname.startsWith('/profile')) {
+      return NextResponse.redirect(new URL('/login', request.url));
+    }
+
     return supabaseResponse;
   }
 
-  const { data: { user } } = await supabase.auth.getUser();
-
-  if (request.nextUrl.pathname.startsWith('/dashboard') && !user) {
-    return NextResponse.redirect(new URL('/login', request.url));
-  }
-
-  if (request.nextUrl.pathname === '/login' && user) {
+  if (publicPaths.includes(request.nextUrl.pathname)) {
     return NextResponse.redirect(new URL('/dashboard', request.url));
   }
 
