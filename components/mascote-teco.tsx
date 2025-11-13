@@ -154,7 +154,7 @@ export default function MascoteTeco(): React.JSX.Element {
         xmlns="http://www.w3.org/2000/svg"
         preserveAspectRatio="xMidYMid meet"
       >
-        <g transform="translate(0,5000) scale(1,-1)" fill="#000000" stroke="none">
+        <g transform="translate(0,5000) scale(1,-1)" fill="#ffffff" stroke="none">
           {/* Corpo */}
           <path d="M2360 3933 c-236 -37 -400 -100 -565 -218 -260 -185 -434 -452 -499
 -767 -21 -101 -21 -326 -1 -444 80 -454 426 -837 869 -961 l99 -28 19 -45

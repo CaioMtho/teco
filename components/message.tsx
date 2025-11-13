@@ -1,11 +1,28 @@
 
 'use client'
 
-export default function Message() {
-  return (
-    <div className="bg-gray-200 border p-1 max-w-3/4 w-fit ms-auto my-2 rounded-l-lg">
-        Lorem ipsum dolor sit amet consectetur adipisicing elit. Magni molestiae ullam quam sunt veniam ipsam maiores harum deleniti aspernatur beatae, voluptatem iure accusantium nisi sit praesentium eaque, quae nobis magnam!
-    </div>
-    
-  )
+import React from 'react';
+
+interface MessageProps {
+  children: string;
+  sender: string;
+
 }
+
+const Message: React.FC<MessageProps> = ({ children, sender}) => {
+  if (sender=='sender'){
+  return (
+      <div className="bg-gray-500 text-white border p-1 max-w-2/3 w-fit ms-auto my-2 p-2 rounded-l-lg">
+        {children}
+    </div>
+  )
+  } if (sender=='receiver'){
+    return (
+     <div className="bg-gray-200 border p-1 max-w-2/3 w-fit my-2 p-2 rounded-r-lg">
+        {children}
+    </div>
+    )
+  }
+};
+
+export default Message;

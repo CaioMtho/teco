@@ -7,6 +7,18 @@ import { useModal } from '../../hooks/use-modal'
 import Chat from "components/chat"
 import Settings from "components/settings"
 import { Bolt } from 'lucide-react';
+import { MessageSquare } from 'lucide-react';
+
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
 
 export default function Page() {
   const { modalState, closeModal, showConfirm, showSuccess, showError } = useModal()
@@ -47,14 +59,25 @@ export default function Page() {
           />
           <h2 className='text-2xl'>nome do usuário</h2>
           <div className='flex justify-center'>
-            <button
 
-            className="px-4 py-2 bg-white text-black rounded-md border border-gray-300 hover:bg-gray-200 transition-colors">
-            <Bolt />
-            </button>
+              <Dialog>
+                <form>
+                  <DialogTrigger asChild>
+                    <button  className="px-4 py-2 bg-white text-black rounded-md border border-gray-300 hover:bg-gray-200 transition-colors"><MessageSquare /></button>
+                  </DialogTrigger>
+                   <Chat/>
+                  </form>
+              </Dialog>
 
-              <Chat/>
-              <Settings/>
+              <Dialog>
+                <form>
+                  <DialogTrigger asChild>
+                  <button  className="px-4 py-2 bg-white text-black rounded-md border border-gray-300 hover:bg-gray-200 transition-colors"><Bolt /></button>
+                  </DialogTrigger>
+                  <Settings/>
+                </form>
+              </Dialog>
+       
           </div>
         </div>
 
@@ -64,11 +87,37 @@ export default function Page() {
            se conecte com técnicos de informática qualificados para resolver os seus problemas
 
         </div>
-        <div className='self-end my-12'>
+        <div className='self-end mt-24'>
           <p className='text-gray-700'>mensagens recentes:</p>
           <div className='flex'>
-            <div className='bg-gray-200 w-md h-32 border rounded-md'></div>
-            <div className='bg-gray-200 w-md h-32 ms-2 border rounded-md'></div>
+            <div className='bg-gray-200 w-md h-32 border rounded-md'>
+              <Dialog>
+                <form>
+                  <DialogTrigger asChild>
+                    <button  className="flex flex-col p-2 w-full h-32 bg-white text-black rounded-md border justify-start items-start border-gray-300 hover:bg-gray-100 transition-colors">
+                      <h3 className='text-gray-800'>nome de usuario</h3>
+                      <p className='text-gray-500'>mensagem recente</p>
+                    </button>
+                  </DialogTrigger>
+                   <Chat/>
+                  </form>
+              </Dialog>
+
+            </div>
+            <div className='bg-gray-200 w-md h-32 ms-2 border rounded-md'>
+              <Dialog>
+                <form>
+                  <DialogTrigger asChild>
+                    <button  className="flex flex-col p-2 w-full h-32 bg-white text-black rounded-md border justify-start items-start border-gray-300 hover:bg-gray-100 transition-colors">
+                      <h3 className='text-gray-800'>nome de usuario</h3>
+                      <p className='text-gray-500'>mensagem recente</p>
+                    </button>
+                  </DialogTrigger>
+                   <Chat/>
+                  </form>
+              </Dialog>
+
+            </div>
 
           </div>
         </div>

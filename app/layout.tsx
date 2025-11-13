@@ -34,7 +34,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <header className="w-auto bg-gray-800 text-white">
+        <header className="w-auto bg-neutral-900 text-white">
           <div className="px-5 shadow-sm flex items-center">
             <Link href="/">
               <Image
@@ -71,10 +71,10 @@ export default function RootLayout({
                 />
                 </PopoverTrigger>
                 <PopoverContent className="w-fit flex flex-col text-center">
-                    <Link href="/" className="p-1 border-b border-gray-200 font-medium hover:text-gray-700 transition-colors">Inicio</Link>
-                    <Link href="/about" className="p-1 font-medium hover:text-gray-700 transition-colors">Sobre</Link>
-                    <Link href="/dashboard" className="p-1 font-medium hover:text-gray-700 transition-colors">Dashboard</Link>
-                    <Link href="/requests" className="p-1 font-medium hover:text-gray-700 transition-colors">Requisições</Link>
+                    <Link href="/" className="p-1 border-b border-gray-200 font-medium hover:text-gray-700 hover:bg-gray-100 transition-colors">Inicio</Link>
+                    <Link href="/about" className="p-1 font-medium border-b border-gray-200  hover:text-gray-700 hover:bg-gray-100 transition-colors">Sobre</Link>
+                    <Link href="/dashboard" className="p-1 font-medium border-b border-gray-200  hover:text-gray-700 hover:bg-gray-100 transition-colors">Dashboard</Link>
+                    <Link href="/requests" className="p-1 font-medium  hover:text-gray-700 hover:bg-gray-100 transition-colors">Requisições</Link>
                 </PopoverContent>
               </Popover>
             </div>

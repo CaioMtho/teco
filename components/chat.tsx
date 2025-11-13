@@ -28,11 +28,7 @@ import { MessageSquare } from 'lucide-react';
 
 export default function Chat() {
   return (
-    <Dialog>
-      <form>
-        <DialogTrigger asChild>
-          <button  className="px-4 py-2 bg-white text-black rounded-md border border-gray-300 hover:bg-gray-200 transition-colors"><MessageSquare /></button>
-        </DialogTrigger>
+
 
         <DialogContent className="sm:max-w-[825px]">
           <DialogHeader className="flex">
@@ -47,10 +43,11 @@ export default function Chat() {
           <div className="">
             <ScrollArea className="h-xl w-[775px] rounded-md border p-4">
 
-              <Message />
-              <Message />
-              <Message />
-              <Message />
+              <Message sender="sender"> Lorem</Message>
+              <Message sender="sender"> Lorem ipsum dolor sit, amet consectetur adipisicing elit. Deleniti at sequi, doloremque nisi mollitia porro, neque reiciendis rerum quo ea non distinctio aliquam quod culpa. Officia, quidem? At, omnis quibusdam.</Message>
+              <Message sender="receiver"> fgasrgaegeg</Message>
+
+
               
             </ScrollArea>
           </div>
@@ -61,7 +58,6 @@ export default function Chat() {
             <Button type="submit">Enviar</Button>
           </DialogFooter>
         </DialogContent>
-      </form>
-    </Dialog>
+
   )
 }
