@@ -71,7 +71,7 @@ export default function RootLayout({
                   height={64}
                 />
                 </PopoverTrigger>
-                <PopoverContent className="w-fit flex flex-col text-center">
+                <PopoverContent className="w-fit flex flex-col text-center z-4000">
                     <Link href="/" className="p-1 border-b border-gray-200 font-medium hover:text-gray-700 hover:bg-gray-100 transition-colors">Inicio</Link>
                     <Link href="/about" className="p-1 font-medium border-b border-gray-200  hover:text-gray-700 hover:bg-gray-100 transition-colors">Sobre</Link>
                     <Link href="/dashboard" className="p-1 font-medium border-b border-gray-200  hover:text-gray-700 hover:bg-gray-100 transition-colors">Dashboard</Link>
