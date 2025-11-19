@@ -3,10 +3,10 @@ import Link from "next/link";
 
 export default function Home() {
   return (
-    <main className="">
+    <main className="overflow-x-hidden">
      
 
-      <div className="h-screen flex-1 flex flex-col items-center bg-[url(public/background.jpg)]">
+      <div className="h-screen flex-1 flex flex-col items-center bg-[url(public/background.jpg)] min-w-full shrink-0 object-cover">
 
         <div className="z-10 text-center">
           <div className="transform hover:scale-105 transition-transform duration-300">
@@ -37,7 +37,7 @@ export default function Home() {
 
 
 
-      <div className="flex justify-around my-6">
+      <div className="flex flex-wrap sm:flex-nowrap sm:justify-around my-6">
 
       <div className="w-80 p-8 flex flex-col justify-center space-y-6">
         <div className="bg-gradient-to-l from-neutral-500/20 to-transparent"></div>

@@ -73,7 +73,7 @@ export default function DashboardProvider() {
                     <SheetHeader>
 
                     </SheetHeader>
-                            <div className='mx-auto'>
+                            <div className='mx-auto w-full sm:w-auto'>
                               <Image 
                                 src="/user-icon.png"
                                 alt="icone"
@@ -82,13 +82,13 @@ export default function DashboardProvider() {
                                 height={64}
                               />
                               <h2 className='text-2xl text-center'>nome do usuário</h2>
-                              <div className='flex justify-center mt-6'>
+                              <div className='flex items-stretch mt-6'>
                     
                                   <Dialog>
                                     <form>
                                       <DialogTrigger asChild>
                                         
-                                          <button  className="w-32 h-16 px-4 py-2 bg-white text-black rounded-md border border-gray-300 hover:bg-gray-200 transition-colors">Calendário</button>
+                                          <button  className="h-16 px-4 py-2 bg-white text-black rounded-md border border-gray-300 hover:bg-gray-200 transition-colors">Calendário</button>
                                         
                                       </DialogTrigger>
                                        <CalendarProvider />
@@ -98,7 +98,7 @@ export default function DashboardProvider() {
                                   <Dialog>
                                     <form>
                                       <DialogTrigger asChild>
-                                      <button  className="w-32 h-16 px-4 py-2 bg-white text-black rounded-md border border-gray-300 hover:bg-gray-200 transition-colors">Análise de ganhos</button>
+                                      <button  className="h-16 px-4 py-2 bg-white text-black rounded-md border border-gray-300 hover:bg-gray-200 transition-colors">Análise de ganhos</button>
                                       </DialogTrigger>
                                       <GainProvider />
                                     </form>
@@ -107,7 +107,7 @@ export default function DashboardProvider() {
                                   <Dialog>
                                     <form>
                                       <DialogTrigger asChild>
-                                      <button  className="w-32 h-16 px-4 py-2 bg-white text-black rounded-md border border-gray-300 hover:bg-gray-200 transition-colors">configurações</button>
+                                      <button  className="h-16 px-4 py-2 bg-white text-black rounded-md border border-gray-300 hover:bg-gray-200 transition-colors">configurações</button>
                                       </DialogTrigger>
                                       <SettingsProvider />
                                     </form>

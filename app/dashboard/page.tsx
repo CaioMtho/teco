@@ -44,16 +44,16 @@ export default function Page() {
   }
 
   return (
-    <div className="h-full">
+    <div className="h-full  overflow-x-hidden overflow-y-auto">
       <h1 className='text-5xl pb-3 pt-6 ps-6'>Dashboard</h1>
-      <div id="dashboard" className="bg-white border-2 border-gray-200 rounded-sm mx-24 my-2 py-3 mb-12 flex">
+      <div id="dashboard" className="bg-white border-2 border-gray-200 rounded-sm mx-2 my-2 py-3 mb-12 sm:mx-24 flex flex-wrap h-lvh sm:h-full overflow-hidden">
         <div id="left-side" className='ml-6'>
         
         <div className=''>
           <Image 
             src="/user-icon.png"
             alt="icone"
-            className="size-64 mt-3 bg-gray-300 rounded-xl"
+            className="size-64 min-w-64 min-size-64 shrink-0 object-cover mt-3 bg-gray-300 rounded-xl"
             width={64}
             height={64}
           />
@@ -83,13 +83,13 @@ export default function Page() {
 
       </div>
       <div className='flex-col mb-12 ms-6 h-lh'>
-        <div className='justify-self-center self-center my-12 ms-6 text-lg'>
+        <div className='justify-self-center self-center my-12 ms-6 text-md sm:text-lg text-wrap'>
            se conecte com técnicos de informática qualificados para resolver os seus problemas
 
         </div>
         <div className='self-end mt-24'>
           <p className='text-gray-700'>mensagens recentes:</p>
-          <div className='flex'>
+          <div className='flex flex-wrap'>
             <div className='bg-gray-200 w-md h-32 border rounded-md'>
               <Dialog>
                 <form>

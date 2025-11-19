@@ -33,7 +33,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased `}
       >
         <header className="w-auto bg-neutral-900 text-white">
           <div className="px-5 shadow-sm flex items-center">
@@ -66,7 +66,7 @@ export default function RootLayout({
                 <Image
                   src="/user-icon.png"
                   alt="icone"
-                  className=" w-12 h-12"
+                  className=" w-12 h-12 min-w-12 shrink-0 object-cover"
                   width={64}
                   height={64}
                 />
