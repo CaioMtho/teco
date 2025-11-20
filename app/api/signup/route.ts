@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { createServerSupabaseClient } from "lib/supabase/server";
 import { insertProfile, ProfileCreate } from 'lib/services/profiles-service';
-import { insertAddress, AddressCreate } from 'lib/services/addresses-services';
+import { insertAddress, AddressCreate } from 'lib/services/addresses-service';
 
 interface SignUpRequest {
     email: string;
