@@ -4,12 +4,13 @@ import { getAddressesByOrderId, linkAddressToOrder } from '@/../lib/services/add
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
     const supabase = createSupabaseClient()
     await getAuthUser(supabase)
-    
+    const params = await context.params
+
     const addresses = await getAddressesByOrderId(supabase, params.id)
     return NextResponse.json({ addresses })
   } catch (error) {
@@ -19,12 +20,13 @@ export async function GET(
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
     const supabase = createSupabaseClient()
     await getAuthUser(supabase)
-    
+    const params = await context.params
+
     const body = await request.json()
     validateRequired(body, ['address_id', 'address_type'])
     

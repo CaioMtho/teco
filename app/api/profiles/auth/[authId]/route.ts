@@ -4,8 +4,9 @@ import { getProfileByAuthId } from '@/../lib/services/profiles-service'
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { authId: string } }
+  content: { params: Promise<{ authId: string }> }
 ) {
+  const params = await content.params
   try {
     const supabase = createSupabaseClient()
     await getAuthUser(supabase)

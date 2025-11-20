@@ -4,12 +4,13 @@ import { getProposalsByRequestId } from '@/../lib/services/chat-service'
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
     const supabase = createSupabaseClient()
     await getAuthUser(supabase)
-    
+    const params = await context.params
+
     const proposals = await getProposalsByRequestId(supabase, params.id)
     return NextResponse.json({ proposals })
   } catch (error) {

@@ -4,8 +4,9 @@ import { getAddressesByProfileIds, getPrimaryAddressByProfileId } from '@/../lib
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { profileId: string } }
+  context: { params: Promise<{ profileId: string }> }
 ) {
+  const params = await context.params
   try {
     const supabase = createSupabaseClient()
     await getAuthUser(supabase)

@@ -4,12 +4,13 @@ import { getProviderSkills, addSkillToProvider, removeSkillFromProvider, createO
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
     const supabase = createSupabaseClient()
     await getAuthUser(supabase)
-    
+    const params = await context.params
+
     const skills = await getProviderSkills(supabase, params.id)
     return NextResponse.json({ skills })
   } catch (error) {
@@ -19,12 +20,13 @@ export async function GET(
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
     const supabase = createSupabaseClient()
     await getAuthUser(supabase)
-    
+    const params = await context.params
+
     const body = await request.json()
     validateRequired(body, ['skill_name'])
     
@@ -44,12 +46,13 @@ export async function POST(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
     const supabase = createSupabaseClient()
     await getAuthUser(supabase)
-    
+    const params = await context.params
+
     const searchParams = request.nextUrl.searchParams
     const skillId = searchParams.get('skill_id')
     

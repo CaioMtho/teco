@@ -4,12 +4,13 @@ import { getOrderById, updateOrder, deleteOrder } from '@/../lib/services/orders
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
     const supabase = createSupabaseClient()
     await getAuthUser(supabase)
-    
+    const params = await context.params
+
     const order = await getOrderById(supabase, params.id)
     return NextResponse.json({ order })
   } catch (error) {
@@ -19,12 +20,13 @@ export async function GET(
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
     const supabase = createSupabaseClient()
     await getAuthUser(supabase)
-    
+    const params = await context.params
+
     const body = await request.json()
     const order = await updateOrder(supabase, params.id, body)
     
@@ -36,12 +38,13 @@ export async function PATCH(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
     const supabase = createSupabaseClient()
     await getAuthUser(supabase)
-    
+    const params = await context.params
+
     await deleteOrder(supabase, params.id)
     return NextResponse.json({ success: true })
   } catch (error) {

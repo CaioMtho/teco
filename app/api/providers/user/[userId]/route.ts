@@ -4,8 +4,9 @@ import { getProviderProfileByUserId } from '@/../lib/services/provider-service'
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { userId: string } }
+  context: { params: Promise<{ userId: string }> }
 ) {
+  const params = await context.params
   try {
     const supabase = createSupabaseClient()
     await getAuthUser(supabase)

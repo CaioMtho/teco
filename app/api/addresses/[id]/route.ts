@@ -4,8 +4,11 @@ import { updateAddress } from '@/../lib/services/addresses-service'
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context : { params: Promise<{ id: string }> }
 ) {
+
+  const params = await context.params
+
   try {
     const supabase = createSupabaseClient()
     await getAuthUser(supabase)
@@ -26,8 +29,10 @@ export async function GET(
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context : { params: Promise<{ id: string }> }
 ) {
+  const params = await context.params
+
   try {
     const supabase = createSupabaseClient()
     await getAuthUser(supabase)
@@ -43,8 +48,9 @@ export async function PATCH(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
+  const params = await context.params
   try {
     const supabase = createSupabaseClient()
     await getAuthUser(supabase)

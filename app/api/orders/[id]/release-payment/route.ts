@@ -4,12 +4,13 @@ import { releasePayment } from '@/../lib/services/orders-service'
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
     const supabase = createSupabaseClient()
     await getAuthUser(supabase)
-    
+    const params = await context.params
+
     const order = await releasePayment(supabase, params.id)
     return NextResponse.json({ order })
   } catch (error) {

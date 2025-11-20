@@ -5,8 +5,9 @@ import { getProfileByAuthId } from '@/../lib/services/profiles-service'
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
+  const params = await context.params
   try {
     const supabase = createSupabaseClient()
     await getAuthUser(supabase)
@@ -24,8 +25,9 @@ export async function GET(
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
+  const params = await context.params
   try {
     const supabase = createSupabaseClient()
     const user = await getAuthUser(supabase)

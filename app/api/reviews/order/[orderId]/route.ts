@@ -4,8 +4,9 @@ import { getReviewByOrderId } from '@/../lib/services/reviews-service'
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { orderId: string } }
+  context: { params: Promise<{ orderId: string }> }
 ) {
+  const params = await context.params
   try {
     const supabase = createSupabaseClient()
     await getAuthUser(supabase)

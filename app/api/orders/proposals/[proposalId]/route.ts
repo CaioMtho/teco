@@ -4,8 +4,9 @@ import { getOrderByProposalId } from '@/../lib/services/orders-service'
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { proposalId: string } }
+  context: { params: Promise<{ proposalId: string }> }
 ) {
+  const params = await context.params
   try {
     const supabase = createSupabaseClient()
     await getAuthUser(supabase)

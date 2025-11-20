@@ -4,12 +4,13 @@ import { updateProposal, deleteProposal } from '@/../lib/services/chat-service'
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
     const supabase = createSupabaseClient()
     await getAuthUser(supabase)
-    
+    const params = await context.params
+
     const { data, error } = await supabase
       .from('proposals')
       .select('*')
@@ -27,12 +28,13 @@ export async function GET(
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
     const supabase = createSupabaseClient()
     await getAuthUser(supabase)
-    
+    const params = await context.params
+
     const body = await request.json()
     const proposal = await updateProposal(supabase, params.id, body)
     
@@ -44,12 +46,13 @@ export async function PATCH(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
     const supabase = createSupabaseClient()
     await getAuthUser(supabase)
-    
+    const params = await context.params
+
     await deleteProposal(supabase, params.id)
     return NextResponse.json({ success: true })
   } catch (error) {

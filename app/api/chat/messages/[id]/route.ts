@@ -4,12 +4,13 @@ import { deleteMessage } from '@/../lib/services/chat-service'
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
     const supabase = createSupabaseClient()
     await getAuthUser(supabase)
-    
+    const params = await context.params
+
     await deleteMessage(supabase, params.id)
     return NextResponse.json({ success: true })
   } catch (error) {
