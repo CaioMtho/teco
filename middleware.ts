@@ -30,13 +30,27 @@ export async function middleware(request: NextRequest) {
   );
 
   const publicPaths = ['/login', '/signup', '/forgot-password', '/reset-password'];
-  const apiPaths = ['/api/'];
+  const publicApiPaths = [
+    '/api/health', 
+    '/api/login', 
+    '/api/signup', 
+    '/api/auth/confirm',
+    '/api/auth/forgot-password',
+    '/api/auth/reset-password'
+  ];
 
-  if (apiPaths.some(path => request.nextUrl.pathname.startsWith(path))) {
+  if (publicApiPaths.some(path => request.nextUrl.pathname.startsWith(path))) {
     return supabaseResponse;
   }
 
   const { data: { user }, error: authError } = await supabase.auth.getUser();
+
+  if (request.nextUrl.pathname.startsWith('/api/')) {
+    if (authError || !user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+    return supabaseResponse;
+  }
 
   if (authError || !user) {
     if (publicPaths.some(path => request.nextUrl.pathname === path)) {
