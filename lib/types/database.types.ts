@@ -26,11 +26,9 @@ export type Database = {
           longitude: number | null
           neighborhood: string
           number: string
-          order_id: string | null
           state: string
           street: string
           updated_at: string | null
-          user_id: string | null
           zip_code: string
         }
         Insert: {
@@ -44,11 +42,9 @@ export type Database = {
           longitude?: number | null
           neighborhood: string
           number: string
-          order_id?: string | null
           state: string
           street: string
           updated_at?: string | null
-          user_id?: string | null
           zip_code: string
         }
         Update: {
@@ -62,29 +58,12 @@ export type Database = {
           longitude?: number | null
           neighborhood?: string
           number?: string
-          order_id?: string | null
           state?: string
           street?: string
           updated_at?: string | null
-          user_id?: string | null
           zip_code?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "addresses_order_id_fkey"
-            columns: ["order_id"]
-            isOneToOne: false
-            referencedRelation: "orders"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "addresses_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       chat_messages: {
         Row: {
@@ -126,6 +105,13 @@ export type Database = {
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "chat_messages_sender_id_fkey"
+            columns: ["sender_id"]
+            isOneToOne: false
+            referencedRelation: "provider_stats"
+            referencedColumns: ["provider_id"]
+          },
         ]
       }
       conversations: {
@@ -162,6 +148,20 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "conversations_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "provider_stats"
+            referencedColumns: ["provider_id"]
+          },
+          {
+            foreignKeyName: "conversations_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: false
+            referencedRelation: "active_requests"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "conversations_request_id_fkey"
             columns: ["request_id"]
             isOneToOne: false
@@ -175,39 +175,101 @@ export type Database = {
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "conversations_requester_id_fkey"
+            columns: ["requester_id"]
+            isOneToOne: false
+            referencedRelation: "provider_stats"
+            referencedColumns: ["provider_id"]
+          },
+        ]
+      }
+      order_addresses: {
+        Row: {
+          address_id: string
+          address_type: string
+          created_at: string | null
+          id: string
+          order_id: string
+        }
+        Insert: {
+          address_id: string
+          address_type: string
+          created_at?: string | null
+          id?: string
+          order_id: string
+        }
+        Update: {
+          address_id?: string
+          address_type?: string
+          created_at?: string | null
+          id?: string
+          order_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_addresses_address_id_fkey"
+            columns: ["address_id"]
+            isOneToOne: false
+            referencedRelation: "addresses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "order_addresses_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "active_orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "order_addresses_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
         ]
       }
       orders: {
         Row: {
+          cancelled_at: string | null
           client_confirmed: boolean | null
           created_at: string | null
+          deleted_at: string | null
           finished_at: string | null
           id: string
+          payment_released_at: string | null
           payment_status: string | null
           proposal_id: string
-          review_id: string | null
+          started_at: string | null
           status: string | null
           updated_at: string | null
         }
         Insert: {
+          cancelled_at?: string | null
           client_confirmed?: boolean | null
           created_at?: string | null
+          deleted_at?: string | null
           finished_at?: string | null
           id?: string
+          payment_released_at?: string | null
           payment_status?: string | null
           proposal_id: string
-          review_id?: string | null
+          started_at?: string | null
           status?: string | null
           updated_at?: string | null
         }
         Update: {
+          cancelled_at?: string | null
           client_confirmed?: boolean | null
           created_at?: string | null
+          deleted_at?: string | null
           finished_at?: string | null
           id?: string
+          payment_released_at?: string | null
           payment_status?: string | null
           proposal_id?: string
-          review_id?: string | null
+          started_at?: string | null
           status?: string | null
           updated_at?: string | null
         }
@@ -219,57 +281,93 @@ export type Database = {
             referencedRelation: "proposals"
             referencedColumns: ["id"]
           },
+        ]
+      }
+      profile_addresses: {
+        Row: {
+          address_id: string
+          address_type: string | null
+          created_at: string | null
+          id: string
+          is_primary: boolean | null
+          profile_id: string
+        }
+        Insert: {
+          address_id: string
+          address_type?: string | null
+          created_at?: string | null
+          id?: string
+          is_primary?: boolean | null
+          profile_id: string
+        }
+        Update: {
+          address_id?: string
+          address_type?: string | null
+          created_at?: string | null
+          id?: string
+          is_primary?: boolean | null
+          profile_id?: string
+        }
+        Relationships: [
           {
-            foreignKeyName: "orders_review_id_fkey"
-            columns: ["review_id"]
+            foreignKeyName: "profile_addresses_address_id_fkey"
+            columns: ["address_id"]
             isOneToOne: false
-            referencedRelation: "reviews"
+            referencedRelation: "addresses"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "profile_addresses_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "profile_addresses_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "provider_stats"
+            referencedColumns: ["provider_id"]
           },
         ]
       }
       profiles: {
         Row: {
-          address_id: string | null
           auth_id: string
           created_at: string | null
+          deleted_at: string | null
           id: string
           name: string
           role: string | null
           updated_at: string | null
         }
         Insert: {
-          address_id?: string | null
           auth_id: string
           created_at?: string | null
+          deleted_at?: string | null
           id?: string
           name: string
           role?: string | null
           updated_at?: string | null
         }
         Update: {
-          address_id?: string | null
           auth_id?: string
           created_at?: string | null
+          deleted_at?: string | null
           id?: string
           name?: string
           role?: string | null
           updated_at?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "profiles_address_id_fkey"
-            columns: ["address_id"]
-            isOneToOne: false
-            referencedRelation: "addresses"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       proposals: {
         Row: {
           amount: number
           created_at: string | null
+          deleted_at: string | null
+          expires_at: string | null
           id: string
           message: string
           proposed_date: string
@@ -280,6 +378,8 @@ export type Database = {
         Insert: {
           amount: number
           created_at?: string | null
+          deleted_at?: string | null
+          expires_at?: string | null
           id?: string
           message: string
           proposed_date: string
@@ -290,6 +390,8 @@ export type Database = {
         Update: {
           amount?: number
           created_at?: string | null
+          deleted_at?: string | null
+          expires_at?: string | null
           id?: string
           message?: string
           proposed_date?: string
@@ -306,6 +408,20 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "proposals_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "provider_stats"
+            referencedColumns: ["provider_id"]
+          },
+          {
+            foreignKeyName: "proposals_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: false
+            referencedRelation: "active_requests"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "proposals_request_id_fkey"
             columns: ["request_id"]
             isOneToOne: false
@@ -317,6 +433,7 @@ export type Database = {
       provider_profiles: {
         Row: {
           bio: string | null
+          deleted_at: string | null
           id: string
           price_base: number | null
           skills: string[] | null
@@ -324,6 +441,7 @@ export type Database = {
         }
         Insert: {
           bio?: string | null
+          deleted_at?: string | null
           id?: string
           price_base?: number | null
           skills?: string[] | null
@@ -331,6 +449,7 @@ export type Database = {
         }
         Update: {
           bio?: string | null
+          deleted_at?: string | null
           id?: string
           price_base?: number | null
           skills?: string[] | null
@@ -344,11 +463,94 @@ export type Database = {
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "provider_profiles_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "provider_stats"
+            referencedColumns: ["provider_id"]
+          },
+        ]
+      }
+      provider_skills: {
+        Row: {
+          created_at: string | null
+          experience_years: number | null
+          provider_id: string
+          skill_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          experience_years?: number | null
+          provider_id: string
+          skill_id: string
+        }
+        Update: {
+          created_at?: string | null
+          experience_years?: number | null
+          provider_id?: string
+          skill_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "provider_skills_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "provider_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "provider_skills_skill_id_fkey"
+            columns: ["skill_id"]
+            isOneToOne: false
+            referencedRelation: "skills"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      request_photos: {
+        Row: {
+          created_at: string | null
+          display_order: number | null
+          id: string
+          request_id: string
+          url: string
+        }
+        Insert: {
+          created_at?: string | null
+          display_order?: number | null
+          id?: string
+          request_id: string
+          url: string
+        }
+        Update: {
+          created_at?: string | null
+          display_order?: number | null
+          id?: string
+          request_id?: string
+          url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "request_photos_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: false
+            referencedRelation: "active_requests"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "request_photos_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: false
+            referencedRelation: "requests"
+            referencedColumns: ["id"]
+          },
         ]
       }
       requests: {
         Row: {
           created_at: string | null
+          deleted_at: string | null
           description: string
           id: string
           photos: string[] | null
@@ -359,6 +561,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string | null
+          deleted_at?: string | null
           description: string
           id?: string
           photos?: string[] | null
@@ -369,6 +572,7 @@ export type Database = {
         }
         Update: {
           created_at?: string | null
+          deleted_at?: string | null
           description?: string
           id?: string
           photos?: string[] | null
@@ -384,6 +588,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "requests_requester_id_fkey"
+            columns: ["requester_id"]
+            isOneToOne: false
+            referencedRelation: "provider_stats"
+            referencedColumns: ["provider_id"]
           },
         ]
       }
@@ -417,10 +628,38 @@ export type Database = {
             foreignKeyName: "fk_reviews_order"
             columns: ["order_id"]
             isOneToOne: true
+            referencedRelation: "active_orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_reviews_order"
+            columns: ["order_id"]
+            isOneToOne: true
             referencedRelation: "orders"
             referencedColumns: ["id"]
           },
         ]
+      }
+      skills: {
+        Row: {
+          category: string | null
+          created_at: string | null
+          id: string
+          name: string
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string | null
+          id?: string
+          name: string
+        }
+        Update: {
+          category?: string | null
+          created_at?: string | null
+          id?: string
+          name?: string
+        }
+        Relationships: []
       }
       spatial_ref_sys: {
         Row: {
@@ -448,6 +687,92 @@ export type Database = {
       }
     }
     Views: {
+      active_orders: {
+        Row: {
+          cancelled_at: string | null
+          client_confirmed: boolean | null
+          created_at: string | null
+          deleted_at: string | null
+          finished_at: string | null
+          id: string | null
+          payment_released_at: string | null
+          payment_status: string | null
+          proposal_amount: number | null
+          proposal_id: string | null
+          provider_id: string | null
+          request_id: string | null
+          started_at: string | null
+          status: string | null
+          updated_at: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "orders_proposal_id_fkey"
+            columns: ["proposal_id"]
+            isOneToOne: false
+            referencedRelation: "proposals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "proposals_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "proposals_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "provider_stats"
+            referencedColumns: ["provider_id"]
+          },
+          {
+            foreignKeyName: "proposals_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: false
+            referencedRelation: "active_requests"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "proposals_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: false
+            referencedRelation: "requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      active_requests: {
+        Row: {
+          created_at: string | null
+          deleted_at: string | null
+          description: string | null
+          id: string | null
+          photos: string[] | null
+          requester_id: string | null
+          requester_name: string | null
+          status: string | null
+          title: string | null
+          updated_at: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "requests_requester_id_fkey"
+            columns: ["requester_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "requests_requester_id_fkey"
+            columns: ["requester_id"]
+            isOneToOne: false
+            referencedRelation: "provider_stats"
+            referencedColumns: ["provider_id"]
+          },
+        ]
+      }
       geography_columns: {
         Row: {
           coord_dimension: number | null
@@ -487,6 +812,18 @@ export type Database = {
           f_table_schema?: unknown
           srid?: number | null
           type?: string | null
+        }
+        Relationships: []
+      }
+      provider_stats: {
+        Row: {
+          avg_rating: number | null
+          completed_orders: number | null
+          name: string | null
+          provider_id: string | null
+          total_orders: number | null
+          total_proposals: number | null
+          total_reviews: number | null
         }
         Relationships: []
       }

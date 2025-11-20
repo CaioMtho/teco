@@ -1,12 +1,16 @@
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 import { Database } from '../types/database.types'
 import { SupabaseClient } from '@supabase/supabase-js'
-import { getAddressesByUserIds } from './addresses-services';
+import { getAddressesByProfileIds } from './addresses-service'
 
-export type RequestCreate = Database['public']['Tables']['requests']['Insert'];
-export type RequestRow = Database['public']['Tables']['requests']['Row'];
-export type RequestWithAddress = RequestRow & { address?: Database['public']['Tables']['addresses']['Row'] | null }
-export type RequestUpdate = Database['public']['Tables']['requests']['Update'];
+export type RequestCreate = Database['public']['Tables']['requests']['Insert']
+export type RequestRow = Database['public']['Tables']['requests']['Row']
+export type RequestPhotoCreate = Database['public']['Tables']['request_photos']['Insert']
+export type RequestPhotoRow = Database['public']['Tables']['request_photos']['Row']
+export type RequestWithAddress = Omit<RequestRow, 'photos'> & { 
+  address?: Database['public']['Tables']['addresses']['Row'] | null
+  photos?: RequestPhotoRow[]
+}
+export type RequestUpdate = Database['public']['Tables']['requests']['Update']
 
 export async function getRequests(
   supabase: SupabaseClient<Database>,
@@ -44,6 +48,7 @@ export async function getRequests(
   let query = supabase
     .from('requests')
     .select('*', { count: 'exact' })
+    .is('deleted_at', null)
 
   if (requester_id) query = query.eq('requester_id', requester_id)
   if (status) query = query.eq('status', status)
@@ -59,12 +64,25 @@ export async function getRequests(
   const totalPages = safePerPage > 0 ? Math.ceil(total / safePerPage) : 0
 
   const requesterIds = Array.from(new Set(rows.map(r => r.requester_id).filter(Boolean))) as string[]
-  const addresses = await getAddressesByUserIds(supabase, requesterIds)
-  const addrByUser = new Map(addresses.map(a => [a.user_id, a]))
+  const addresses = await getAddressesByProfileIds(supabase, requesterIds)
+  const primaryAddrByProfile = new Map(
+    addresses.filter(a => a.is_primary).map(a => [a.profile_id, a])
+  )
+
+  const requestIds = rows.map(r => r.id)
+  const photos = await getPhotosByRequestIds(supabase, requestIds)
+  const photosByRequest = new Map<string, RequestPhotoRow[]>()
+  photos.forEach(photo => {
+    if (!photosByRequest.has(photo.request_id)) {
+      photosByRequest.set(photo.request_id, [])
+    }
+    photosByRequest.get(photo.request_id)!.push(photo)
+  })
 
   const dataWithAddress: RequestWithAddress[] = rows.map(r => ({
     ...r,
-    address: addrByUser.get(r.requester_id) ?? null,
+    address: primaryAddrByProfile.get(r.requester_id) ?? null,
+    photos: photosByRequest.get(r.id) ?? []
   }))
 
   return {
@@ -76,8 +94,6 @@ export async function getRequests(
   }
 }
 
-
-
 export async function getRequestById(
   supabase: SupabaseClient<Database>,
   id: string
@@ -86,21 +102,28 @@ export async function getRequestById(
     .from('requests')
     .select('*')
     .eq('id', id)
+    .is('deleted_at', null)
     .single()
 
   if (reqErr) throw reqErr
   if (!request) return request
 
   const { data: addressData, error: addrErr } = await supabase
-    .from('addresses')
-    .select('*')
-    .eq('user_id', request.requester_id)
-    .limit(1)
+    .from('profile_addresses')
+    .select('addresses(*)')
+    .eq('profile_id', request.requester_id)
+    .eq('is_primary', true)
     .maybeSingle()
 
   if (addrErr) throw addrErr
 
-  return { ...(request as RequestRow), address: addressData ?? null }
+  const photos = await getPhotosByRequestIds(supabase, [request.id])
+
+  return { 
+    ...(request as RequestRow), 
+    address: addressData?.addresses as any ?? null,
+    photos 
+  }
 }
 
 export async function updateRequest(
@@ -108,12 +131,82 @@ export async function updateRequest(
   id: string,
   changes: RequestUpdate
 ): Promise<RequestRow> {
-  const { data, error } = await supabase.from('requests').update(changes).eq('id', id).select().single()
+  const { data, error } = await supabase
+    .from('requests')
+    .update(changes)
+    .eq('id', id)
+    .is('deleted_at', null)
+    .select()
+    .single()
+
   if (error) throw error
   return data as RequestRow
 }
 
-export async function createRequest(supabase : SupabaseClient<Database>, newRequest : RequestCreate){
-  const { error } = await supabase.from('requests').insert(newRequest);
-  if(error) throw error;
+export async function createRequest(
+  supabase: SupabaseClient<Database>,
+  newRequest: RequestCreate
+): Promise<RequestRow> {
+  const { data, error } = await supabase
+    .from('requests')
+    .insert(newRequest)
+    .select()
+    .single()
+
+  if (error) throw error
+  return data
+}
+
+export async function deleteRequest(
+  supabase: SupabaseClient<Database>,
+  id: string
+): Promise<void> {
+  const { error } = await supabase
+    .from('requests')
+    .update({ deleted_at: new Date().toISOString() })
+    .eq('id', id)
+
+  if (error) throw error
+}
+
+export async function addRequestPhoto(
+  supabase: SupabaseClient<Database>,
+  photo: RequestPhotoCreate
+): Promise<RequestPhotoRow> {
+  const { data, error } = await supabase
+    .from('request_photos')
+    .insert(photo)
+    .select()
+    .single()
+
+  if (error) throw error
+  return data
+}
+
+export async function getPhotosByRequestIds(
+  supabase: SupabaseClient<Database>,
+  requestIds: string[]
+): Promise<RequestPhotoRow[]> {
+  if (!requestIds?.length) return []
+
+  const { data, error } = await supabase
+    .from('request_photos')
+    .select('*')
+    .in('request_id', requestIds)
+    .order('display_order', { ascending: true })
+
+  if (error) throw error
+  return data ?? []
+}
+
+export async function deleteRequestPhoto(
+  supabase: SupabaseClient<Database>,
+  id: string
+): Promise<void> {
+  const { error } = await supabase
+    .from('request_photos')
+    .delete()
+    .eq('id', id)
+
+  if (error) throw error
 }
