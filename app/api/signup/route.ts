@@ -1,12 +1,13 @@
 import { NextResponse } from "next/server";
 import { createServerSupabaseClient } from "lib/supabase/server";
 import { insertProfile, ProfileCreate } from 'lib/services/profiles-service';
-import { insertAddress, AddressCreate } from 'lib/services/addresses-services';
+import { insertAddress, AddressCreate, linkAddressToProfile } from 'lib/services/addresses-service';
 
 interface SignUpRequest {
     email: string;
     password: string;
     name: string;
+    role?: 'provider' | 'requester';
     address: {
         street: string;
         number: string;
@@ -16,6 +17,8 @@ interface SignUpRequest {
         zip_code: string;
         country: string;
         complement?: string;
+        latitude?: number;
+        longitude?: number;
     };
 }
 
@@ -37,6 +40,14 @@ export async function POST(req: Request) {
             );
         }
 
+        const profileData: ProfileCreate = {
+            auth_id: authData.user.id,
+            name: body.name,
+            role: body.role || 'requester'
+        };
+
+        const profile = await insertProfile(supabase, profileData);
+
         const addressData: AddressCreate = {
             street: body.address.street,
             number: body.address.number,
@@ -45,29 +56,35 @@ export async function POST(req: Request) {
             state: body.address.state,
             zip_code: body.address.zip_code,
             country: body.address.country,
-            complement: body.address.complement
+            complement: body.address.complement,
+            latitude: body.address.latitude,
+            longitude: body.address.longitude
         };
 
         const address = await insertAddress(supabase, addressData);
 
-        const profileData: ProfileCreate = {
-            auth_id: authData.user.id,
-            name: body.name,
-            address_id: address.id
-        };
-
-        await insertProfile(supabase, profileData);
+        await linkAddressToProfile(supabase, {
+            profile_id: profile.id,
+            address_id: address.id,
+            is_primary: true,
+            address_type: 'home'
+        });
 
         return NextResponse.json(
-            { message: "Você receberá um email de confirmação" },
+            { 
+                message: "Você receberá um email de confirmação",
+                profile_id: profile.id 
+            },
             { status: 201 }
         );
     } catch (error: unknown) {
+        console.error('Signup error:', error);
+        
         let message = "Ocorreu um erro ao criar usuário";
-        if(error instanceof Error){
+        if (error instanceof Error) {
             message = error.message;
         }
-
-        return NextResponse.json({error: message}, {status: 500});
+        
+        return NextResponse.json({ error: message }, { status: 500 });
     }
 }
