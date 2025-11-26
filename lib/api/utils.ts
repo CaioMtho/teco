@@ -1,28 +1,30 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
 import { Database } from '../types/database.types'
 import { createClient } from '@supabase/supabase-js'
 
-export function createSupabaseClient() {
-  const cookieStore = cookies()
-  
+export async function createSupabaseClient(request?: NextRequest) {
+  const cookieStore = request
+    ? await request.cookies    
+    : await cookies()           
+
   return createClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
-        async get(name: string) {
-          return (await cookieStore).get(name)?.value
-        },
-      },
+        get(name: string) {
+          return cookieStore.get(name)?.value
+        }
+      }
     } as any
   )
 }
 
 export type AppSupabaseClient = ReturnType<typeof createSupabaseClient>
 
-export async function getAuthUser(supabase: ReturnType<typeof createSupabaseClient>) {
-  const { data: { user }, error } = await supabase.auth.getUser()
+export async function getAuthUser(supabase: AppSupabaseClient) {
+  const { data: { user }, error } = await (await supabase).auth.getUser()
   if (error || !user) {
     throw new Error('Unauthorized')
   }
