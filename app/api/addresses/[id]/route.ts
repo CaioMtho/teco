@@ -10,7 +10,7 @@ export async function GET(
   const params = await context.params
 
   try {
-    const supabase = createSupabaseClient()
+    const supabase = await createSupabaseClient()
     await getAuthUser(supabase)
     
     const { data, error } = await supabase
@@ -34,7 +34,7 @@ export async function PATCH(
   const params = await context.params
 
   try {
-    const supabase = createSupabaseClient()
+    const supabase = await createSupabaseClient()
     await getAuthUser(supabase)
     
     const body = await request.json()
@@ -52,7 +52,7 @@ export async function DELETE(
 ) {
   const params = await context.params
   try {
-    const supabase = createSupabaseClient()
+    const supabase = await createSupabaseClient()
     await getAuthUser(supabase)
     
     const { error } = await supabase

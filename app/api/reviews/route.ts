@@ -4,7 +4,7 @@ import { createReview } from '@/../lib/services/reviews-service'
 
 export async function POST(request: NextRequest) {
   try {
-    const supabase = createSupabaseClient()
+    const supabase = await createSupabaseClient()
     await getAuthUser(supabase)
     
     const body = await request.json()

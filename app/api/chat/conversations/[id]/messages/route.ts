@@ -9,7 +9,7 @@ export async function GET(
 ) {
   const params = await context.params
   try {
-    const supabase = createSupabaseClient()
+    const supabase = await createSupabaseClient()
     await getAuthUser(supabase)
     
     const searchParams = request.nextUrl.searchParams
@@ -29,7 +29,7 @@ export async function POST(
 ) {
   const params = await context.params
   try {
-    const supabase = createSupabaseClient()
+    const supabase = await createSupabaseClient()
     const user = await getAuthUser(supabase)
     
     const body = await request.json()

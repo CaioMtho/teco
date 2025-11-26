@@ -3,7 +3,7 @@ import { createSupabaseClient, handleError, getAuthUser } from '@/../lib/api/uti
 
 export async function GET(request: NextRequest) {
   try {
-    const supabase = createSupabaseClient()
+    const supabase = await createSupabaseClient()
     await getAuthUser(supabase)
     
     const searchParams = request.nextUrl.searchParams
