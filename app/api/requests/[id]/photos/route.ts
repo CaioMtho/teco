@@ -7,7 +7,7 @@ export async function POST(
   context: { params: Promise<{ id: string }> }
 ) {
   try {
-    const supabase = createSupabaseClient()
+    const supabase = await createSupabaseClient()
     await getAuthUser(supabase)
     const params = await context.params
 
@@ -28,7 +28,7 @@ export async function POST(
 
 export async function DELETE(request: NextRequest) {
   try {
-    const supabase = createSupabaseClient()
+    const supabase = await createSupabaseClient()
     await getAuthUser(supabase)
     
     const searchParams = request.nextUrl.searchParams

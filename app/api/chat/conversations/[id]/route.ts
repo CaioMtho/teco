@@ -8,7 +8,7 @@ export async function GET(
 ) {
   const params = await context.params
   try {
-    const supabase = createSupabaseClient()
+    const supabase = await createSupabaseClient()
     await getAuthUser(supabase)
     
     const conversation = await getConversationById(supabase, params.id)

@@ -8,7 +8,7 @@ export async function GET(
 ) {
   const params = await content.params
   try {
-    const supabase = createSupabaseClient()
+    const supabase = await createSupabaseClient()
     await getAuthUser(supabase)
     
     const profile = await getProfileByAuthId(supabase, params.authId)
