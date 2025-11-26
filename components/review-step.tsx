@@ -49,6 +49,7 @@ export function ReviewStep({
           latitude: locationData.latitude || null,
           longitude: locationData.longitude || null,
         }),
+        credentials: 'include',
       });
 
       if (!addressResponse.ok) {
@@ -67,6 +68,7 @@ export function ReviewStep({
           description: fullDescription,
           photos: photos.length > 0 ? photos : null,
         }),
+        credentials: 'include',
       });
 
       if (!requestResponse.ok) {

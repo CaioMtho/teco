@@ -68,7 +68,9 @@ export default function SignUpPage() {
             country: formData.country,
             complement: formData.complement || undefined,
           },
-        }),
+        }
+      ),
+      credentials: 'include',
       });
 
       const data = await response.json();

@@ -215,7 +215,8 @@ export function InteractiveMap({ onStartChat }: InteractiveMapProps) {
             abortControllerRef.current = new AbortController();
 
             const response = await fetch('/api/requests', {
-                signal: abortControllerRef.current.signal
+                signal: abortControllerRef.current.signal,
+                credentials: 'include',
             });
 
             if (!response.ok) {
