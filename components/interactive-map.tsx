@@ -222,8 +222,28 @@ export function InteractiveMap({ onStartChat }: InteractiveMapProps) {
                 throw new Error(`Erro ${response.status}: ${response.statusText}`);
             }
 
-            const data: RequestLocation[] = await response.json();
-            
+            const payload = await response.json();
+
+            // The requests API returns a paginated object: { data: Request[]; page; perPage; ... }
+            // but older/other calls might return a raw array directly. Accept both shapes.
+            const raw = Array.isArray(payload)
+                ? payload
+                : (Array.isArray((payload as any).data) ? (payload as any).data : [])
+
+            if (!Array.isArray(raw)) {
+                console.warn('Unexpected /api/requests payload shape, expected array or { data: [] }', payload)
+            }
+
+            const data: RequestLocation[] = (raw as any[]).map(item => ({
+                id: String(item?.id ?? ''),
+                title: String(item?.title ?? ''),
+                description: String(item?.description ?? ''),
+                requester_id: String(item?.requester_id ?? ''),
+                latitude: typeof item?.latitude === 'number' ? item.latitude : (item?.address?.latitude ?? null),
+                longitude: typeof item?.longitude === 'number' ? item.longitude : (item?.address?.longitude ?? null),
+                created_at: String(item?.created_at ?? item?.createdAt ?? new Date().toISOString()),
+            }))
+
             const nearby = data.filter((request) => {
                 if (
                     request.latitude === null || 
