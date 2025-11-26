@@ -12,6 +12,7 @@ export async function middleware(request: NextRequest) {
     {
       cookies: {
         getAll() {
+          console.log(request.cookies.getAll());
           return request.cookies.getAll();
         },
         setAll(cookiesToSet) {
