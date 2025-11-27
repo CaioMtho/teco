@@ -31,6 +31,18 @@ export default function Chat({ conversationId }: Props) {
   const [reviewOrderId, setReviewOrderId] = useState<string | null>(null)
   const channelsRef = React.useRef<Map<string, any>>(new Map())
 
+  const makeApiUrl = (path: string) => {
+    try {
+      if (typeof window !== 'undefined') {
+        return `${window.location.origin}${path.startsWith('/') ? path : `/${path}`}`
+      }
+    } catch (e) {
+      // fall through to server-side fallback
+    }
+    const base = process.env.NEXT_PUBLIC_SITE_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000')
+    return new URL(path, base).toString()
+  }
+
   const subscribeToOrderForProposal = async (proposalId: string) => {
     if (!proposalId) return
     const key = `order:${proposalId}`
@@ -38,7 +50,7 @@ export default function Chat({ conversationId }: Props) {
 
     // fetch existing order for this proposal (if any)
     try {
-      const r = await fetch(`/api/orders/proposals/${proposalId}`)
+      const r = await fetch(makeApiUrl(`/api/orders/proposals/${proposalId}`))
       if (r.ok) {
         const j = await r.json()
         if (j.order) setOrder(j.order)
@@ -67,15 +79,15 @@ export default function Chat({ conversationId }: Props) {
 
     let channel: any = null
     ;(async () => {
-      const me = await fetch('/api/profiles/me')
+      const me = await fetch(makeApiUrl('/api/profiles/me'))
       const meJson = await me.json()
       setProfile(meJson.profile)
 
-      const convRes = await fetch(`/api/chat/conversations/${conversationId}`)
+      const convRes = await fetch(makeApiUrl(`/api/chat/conversations/${conversationId}`))
       const convJson = await convRes.json()
       setConversation(convJson.conversation)
 
-      const msgs = await fetch(`/api/chat/conversations/${conversationId}/messages?limit=200`)
+      const msgs = await fetch(makeApiUrl(`/api/chat/conversations/${conversationId}/messages?limit=200`))
       const msgsJson = await msgs.json()
       setMessages(msgsJson.messages || [])
 
@@ -118,7 +130,7 @@ export default function Chat({ conversationId }: Props) {
   const sendMessage = async () => {
     if (!content.trim() || !conversationId) return
     try {
-      const res = await fetch(`/api/chat/conversations/${conversationId}/messages`, {
+      const res = await fetch(makeApiUrl(`/api/chat/conversations/${conversationId}/messages`), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ content })
@@ -135,7 +147,7 @@ export default function Chat({ conversationId }: Props) {
   const submitProposal = async () => {
     if (!proposalAmount || !proposalDate || !conversation?.request_id) return
     try {
-      const res = await fetch('/api/chat/proposals', {
+      const res = await fetch(makeApiUrl('/api/chat/proposals'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ request_id: conversation.request_id, amount: Number(proposalAmount), message: proposalMessage, proposed_date: proposalDate })
@@ -144,7 +156,7 @@ export default function Chat({ conversationId }: Props) {
       const { proposal } = await res.json()
 
       // send a message linking the proposal
-      const msgRes = await fetch(`/api/chat/conversations/${conversationId}/messages`, {
+      const msgRes = await fetch(makeApiUrl(`/api/chat/conversations/${conversationId}/messages`), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ content: `PROPOSAL:${proposal.id}` })
@@ -162,7 +174,7 @@ export default function Chat({ conversationId }: Props) {
 
   const acceptProposal = async (proposalId: string) => {
     try {
-      const res = await fetch('/api/orders', {
+      const res = await fetch(makeApiUrl('/api/orders'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ proposal_id: proposalId })
@@ -177,13 +189,13 @@ export default function Chat({ conversationId }: Props) {
 
   const releasePayment = async (orderId: string) => {
     try {
-      const res = await fetch(`/api/orders/${orderId}/release-payment`, { method: 'POST' })
+      const res = await fetch(makeApiUrl(`/api/orders/${orderId}/release-payment`), { method: 'POST' })
       if (!res.ok) throw new Error('release failed')
       const { order } = await res.json()
       setOrder(order)
       // close request
       if (conversation?.request_id) {
-        await fetch(`/api/requests/${conversation.request_id}`, {
+        await fetch(makeApiUrl(`/api/requests/${conversation.request_id}`), {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ status: 'CLOSED' })
@@ -285,8 +297,20 @@ function ProposalMessage({ proposalId, isMe, onAccept }: { proposalId: string, i
 
   useEffect(() => {
     let mounted = true
+    const makeApiUrl = (path: string) => {
+      try {
+        if (typeof window !== 'undefined') {
+          return `${window.location.origin}${path.startsWith('/') ? path : `/${path}`}`
+        }
+      } catch (e) {
+        // fall through to server-side fallback
+      }
+      const base = process.env.NEXT_PUBLIC_SITE_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000')
+      return new URL(path, base).toString()
+    }
+
     ;(async () => {
-      const res = await fetch(`/api/chat/proposals/${proposalId}`)
+      const res = await fetch(makeApiUrl(`/api/chat/proposals/${proposalId}`))
       if (!res.ok) return
       const { proposal } = await res.json()
       if (!mounted) return

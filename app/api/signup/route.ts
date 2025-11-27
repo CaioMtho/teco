@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { createServerSupabaseClient } from "lib/supabase/server";
 import { insertProfile, ProfileCreate, deleteProfile } from 'lib/services/profiles-service';
-import { insertAddress, AddressCreate, linkAddressToProfile, updateAddress } from 'lib/services/addresses-service';
+import { insertAddress, AddressCreate, linkAddressToProfile, updateAddress, deleteAddress } from 'lib/services/addresses-service';
 import { createProviderProfile } from 'lib/services/provider-service';
 
 interface SignUpRequest {
@@ -94,9 +94,9 @@ export async function POST(req: Request) {
                     console.error('Failed deleting profile during rollback', e)
                 }
                 try {
-                    await updateAddress(supabase, address.id, { deleted_at: new Date().toISOString() })
+                    await deleteAddress(supabase, address.id)
                 } catch (e) {
-                    console.error('Failed marking address deleted during rollback', e)
+                    console.error('Failed deleting address during rollback', e)
                 }
 
                 return NextResponse.json({ error: 'Erro ao criar perfil de provider' }, { status: 500 })
