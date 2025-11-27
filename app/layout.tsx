@@ -1,3 +1,4 @@
+
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
@@ -9,6 +10,11 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 import { Analytics } from "@vercel/analytics/next"
+import { supabase } from 'lib/supabase/client'
+
+import EntrarButton from "../components/menu/entrar-button"
+import MenuPopover from "../components/menu/menuPopover"
+
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -25,12 +31,17 @@ export const metadata: Metadata = {
   description: "Plataforma Marketplace para Serviços de TI",
 };
 
+
+
+
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+
   return (
+
     <html lang="en">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased `}
@@ -49,29 +60,8 @@ export default function RootLayout({
 
 
             
-            <Link href="/login" className="inline-block w-auto p-3 py-2 self-center ms-auto text-black font-medium transition-colors 
-        bg-white border rounded-md hover:bg-gray-100 ">entrar</Link>
-            <div className="mx-3 sm:mx-12">
-              <Popover>
-                <PopoverTrigger asChild>
-                
-                
-                <Image
-                  src="/user-icon.png"
-                  alt="icone"
-                  className=" w-12 h-12 min-w-12 self-center shrink-0 object-cover"
-                  width={64}
-                  height={64}
-                />
-                </PopoverTrigger>
-                <PopoverContent className="w-fit flex flex-col text-center z-4000">
-                    <Link href="/" className="p-1 border-b border-gray-200 font-medium hover:text-gray-700 hover:bg-gray-100 transition-colors">Inicio</Link>
-                    <Link href="/about" className="p-1 font-medium border-b border-gray-200  hover:text-gray-700 hover:bg-gray-100 transition-colors">Sobre</Link>
-                    <Link href="/dashboard" className="p-1 font-medium border-b border-gray-200  hover:text-gray-700 hover:bg-gray-100 transition-colors">Dashboard</Link>
-                    <Link href="/new-request" className="p-1 font-medium  hover:text-gray-700 hover:bg-gray-100 transition-colors">Requisições</Link>
-                </PopoverContent>
-              </Popover>
-            </div>
+            <EntrarButton />
+            <MenuPopover />
           </div>
         </header>
  

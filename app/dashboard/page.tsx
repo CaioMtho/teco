@@ -20,7 +20,27 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 
+const { data: { user } } = await supabase.auth.getUser();
+console.log(user);
+console.log(user?.email);
+const res = await fetch(`/api/profiles/me`);
+console.log(res);
+const json = await res.json();
+console.log("3-"+json);
+
+const jsonString: string = JSON.stringify(json);
+
+console.log(JSON.stringify(json, null, 2));
+
+
+
+
+
+
 export default function Page() {
+
+  //console.log("------->"+json);
+
   const { modalState, closeModal, showConfirm, showSuccess, showError } = useModal()
   
   const handleSignOut = async () => {
@@ -43,6 +63,8 @@ export default function Page() {
     )
   }
 
+ 
+
   return (
     <div className="overflow-x-hidden overflow-y-auto">
       <h1 className='text-5xl pb-3 pt-6 ps-6'>Dashboard</h1>
@@ -57,7 +79,7 @@ export default function Page() {
             width={64}
             height={64}
           />
-          <h2 className='text-2xl text-center'>nome do usuário</h2>
+          <h2 className='text-xl text-center text-wrap truncate'>{json?.profile.name}</h2>
           <div className='flex justify-center'>
 
               <Dialog>
