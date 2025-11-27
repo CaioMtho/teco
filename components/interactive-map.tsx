@@ -25,6 +25,10 @@ interface RequestLocation {
     latitude: number | null;
     longitude: number | null;
     created_at: string;
+    address?: {
+        latitude: number | null;
+        longitude: number | null;
+    } | null;
 }
 
 interface InteractiveMapProps {
@@ -202,16 +206,29 @@ export function InteractiveMap({ onStartChat }: InteractiveMapProps) {
             }
 
             const json = await response.json();
-            const data: RequestLocation[] = Array.isArray(json) ? json : (Array.isArray((json as any).data) ? (json as any).data : [])
+            const data: any[] = Array.isArray(json) ? json : (Array.isArray((json as any).data) ? (json as any).data : [])
 
             const nearby = data.filter((request) => {
+                // Get coordinates from request or from nested address
+                let lat: number | null = null;
+                let lon: number | null = null;
+
+                if (request.latitude != null && request.longitude != null) {
+                    lat = request.latitude;
+                    lon = request.longitude;
+                } else if (request.address?.latitude != null && request.address?.longitude != null) {
+                    lat = request.address.latitude;
+                    lon = request.address.longitude;
+                }
+
+                // Filter invalid coords
                 if (
-                    request.latitude === null || 
-                    request.longitude === null ||
-                    typeof request.latitude !== 'number' ||
-                    typeof request.longitude !== 'number' ||
-                    isNaN(request.latitude) ||
-                    isNaN(request.longitude)
+                    lat === null || 
+                    lon === null ||
+                    typeof lat !== 'number' ||
+                    typeof lon !== 'number' ||
+                    isNaN(lat) ||
+                    isNaN(lon)
                 ) {
                     return false;
                 }
@@ -219,11 +236,20 @@ export function InteractiveMap({ onStartChat }: InteractiveMapProps) {
                 const distance = calculateDistance(
                     latitude, 
                     longitude, 
-                    request.latitude, 
-                    request.longitude
+                    lat, 
+                    lon
                 );
                 
                 return distance <= SEARCH_RADIUS_KM;
+            }).map(req => {
+                // Normalize: copy address coords to root level if not present
+                if (req.latitude == null && req.address?.latitude != null) {
+                    req.latitude = req.address.latitude;
+                }
+                if (req.longitude == null && req.address?.longitude != null) {
+                    req.longitude = req.address.longitude;
+                }
+                return req;
             });
 
             setRequests(nearby);
