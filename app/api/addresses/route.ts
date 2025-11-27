@@ -32,14 +32,16 @@ export async function POST(request: NextRequest) {
     validateRequired(body, ['street', 'number', 'neighborhood', 'city', 'state', 'country', 'zip_code'])
     
     const { profile_id, is_primary, address_type, ...addressData } = body
+    
     // If latitude/longitude weren't provided by the client, try server-side geocoding
-    if ((addressData.latitude === undefined || addressData.latitude === null) ||
-        (addressData.longitude === undefined || addressData.longitude === null)) {
+    const hasCoords = addressData.latitude != null && addressData.longitude != null
+    if (!hasCoords) {
       try {
         const qParts = [addressData.street, addressData.number, addressData.neighborhood, addressData.city, addressData.state, addressData.zip_code, addressData.country]
           .filter(Boolean)
           .join(', ')
 
+        console.log('[addresses POST] Geocoding address:', { street: addressData.street, qParts })
         const nominatimUrl = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(qParts)}&limit=1&addressdetails=0&accept-language=pt-BR`
         const geoRes = await fetch(nominatimUrl, { headers: { 'User-Agent': 'teco-app/1.0 (+https://example.com)' } })
         if (geoRes.ok) {
@@ -51,12 +53,17 @@ export async function POST(request: NextRequest) {
             if (!Number.isNaN(lat) && !Number.isNaN(lon)) {
               addressData.latitude = lat
               addressData.longitude = lon
+              console.log('[addresses POST] Geocoding success:', { latitude: lat, longitude: lon })
             }
+          } else {
+            console.log('[addresses POST] Geocoding returned empty results')
           }
+        } else {
+          console.log('[addresses POST] Geocoding request failed:', geoRes.status, geoRes.statusText)
         }
       } catch (err) {
         // Geocoding failed - continue without coordinates
-        console.warn('Address geocoding failed', err)
+        console.warn('[addresses POST] Address geocoding error:', err)
       }
     }
 
