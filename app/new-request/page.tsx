@@ -63,8 +63,8 @@ export default function NewRequestPage() {
   };
 
   return (
-    <div className="min-h-screen bg-neutral-50 py-8 px-4">
-      <div className="max-w-3xl mx-auto space-y-6">
+    <div className="min-h-screen bg-neutral-50 py-8 px-4 oveflow-x-hidden">
+      <div className="max-w-3xl mx-auto space-y-6  oveflow-x-hidden">
         <div>
           <h1 className="text-3xl font-bold text-neutral-900">Nova Solicitação</h1>
           <p className="text-neutral-600 mt-2">
