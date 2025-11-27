@@ -59,7 +59,7 @@ export function LocationStep({ onComplete, onBack }: LocationStepProps) {
 
   if (manualMode) {
     return (
-      <Card className="p-6">
+      <Card className="px-2 py-4 sm:p-6">
         <div className="space-y-6">
           <div>
             <h2 className="text-xl font-semibold text-neutral-900 mb-2">
@@ -177,7 +177,7 @@ export function LocationStep({ onComplete, onBack }: LocationStepProps) {
   }
 
   return (
-    <Card className="p-6">
+    <Card className="px-2 py-4 sm:p-6 overflow-hidden">
       <div className="space-y-6">
         <div className="text-center">
           <div className="w-16 h-16 bg-neutral-100 rounded-full flex items-center justify-center mx-auto mb-4">

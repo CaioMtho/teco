@@ -16,6 +16,12 @@ import { use } from 'react'
 
 const { data: { user } } = await supabase.auth.getUser();
 
+
+const res = await fetch(`/api/profiles/me`);
+console.log(res);
+const json = await res.json();
+console.log("lolo-"+json);
+
 export default function MenuPopover() {
     console.log("?")
     console.log(user)
@@ -60,8 +66,8 @@ export default function MenuPopover() {
                 <Link href="/" className="p-1 border-b border-gray-200 font-medium hover:text-gray-700 hover:bg-gray-100 transition-colors">Inicio</Link>
                 <Link href="/about" className="p-1 font-medium border-b border-gray-200  hover:text-gray-700 hover:bg-gray-100 transition-colors">Sobre</Link>
                 <Link href="/dashboard" className="p-1 font-medium border-b border-gray-200  hover:text-gray-700 hover:bg-gray-100 transition-colors">Dashboard</Link>
-                <Link href="/new-request" className="p-1 font-medium  hover:text-gray-700 hover:bg-gray-100 transition-colors">Requisições</Link>
-                <button onClick={confirmSignOut} className="px-4 py-2 text-[#FF0000] border-0">
+                <Link href="/new-request" className="p-1 font-medium border-b border-gray-200 hover:text-gray-700 hover:bg-gray-100 transition-colors">Requisições</Link>
+                <button onClick={confirmSignOut} className="px-4 py-2 text-[#FF0000] hover:bg-gray-100 border-0">
                     Sair
                 </button>
             </PopoverContent>
