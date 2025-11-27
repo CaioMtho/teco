@@ -37,29 +37,50 @@ export async function POST(request: NextRequest) {
     const hasCoords = addressData.latitude != null && addressData.longitude != null
     if (!hasCoords) {
       try {
-        const qParts = [addressData.street, addressData.number, addressData.neighborhood, addressData.city, addressData.state, addressData.zip_code, addressData.country]
-          .filter(Boolean)
-          .join(', ')
+        // Try multiple query strategies: full address, then simplified versions
+        const queries = [
+          // Full address
+          `${addressData.street}, ${addressData.number}, ${addressData.neighborhood}, ${addressData.city}, ${addressData.state}, ${addressData.country}`,
+          // Street + neighborhood + city (skip number and postcode)
+          `${addressData.street}, ${addressData.neighborhood}, ${addressData.city}, ${addressData.state}`,
+          // Just neighborhood + city (fallback to area center)
+          `${addressData.neighborhood}, ${addressData.city}, ${addressData.state}`,
+          // City + state (last resort)
+          `${addressData.city}, ${addressData.state}, ${addressData.country}`,
+        ]
 
-        console.log('[addresses POST] Geocoding address:', { street: addressData.street, qParts })
-        const nominatimUrl = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(qParts)}&limit=1&addressdetails=0&accept-language=pt-BR`
-        const geoRes = await fetch(nominatimUrl, { headers: { 'User-Agent': 'teco-app/1.0 (+https://example.com)' } })
-        if (geoRes.ok) {
-          const geoJson = await geoRes.json()
-          if (Array.isArray(geoJson) && geoJson.length > 0) {
-            const first = geoJson[0]
-            const lat = parseFloat(first.lat)
-            const lon = parseFloat(first.lon)
-            if (!Number.isNaN(lat) && !Number.isNaN(lon)) {
-              addressData.latitude = lat
-              addressData.longitude = lon
-              console.log('[addresses POST] Geocoding success:', { latitude: lat, longitude: lon })
+        let geocoded = false
+        for (const query of queries) {
+          if (geocoded) break
+          
+          const nominatimUrl = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=1&addressdetails=0&accept-language=pt-BR`
+          try {
+            const geoRes = await fetch(nominatimUrl, { 
+              headers: { 'User-Agent': 'teco-app/1.0 (+https://example.com)' },
+              signal: AbortSignal.timeout(5000) 
+            })
+            if (geoRes.ok) {
+              const geoJson = await geoRes.json()
+              if (Array.isArray(geoJson) && geoJson.length > 0) {
+                const first = geoJson[0]
+                const lat = parseFloat(first.lat)
+                const lon = parseFloat(first.lon)
+                if (!Number.isNaN(lat) && !Number.isNaN(lon)) {
+                  addressData.latitude = lat
+                  addressData.longitude = lon
+                  console.log('[addresses POST] Geocoding success with query:', { query, latitude: lat, longitude: lon })
+                  geocoded = true
+                }
+              }
             }
-          } else {
-            console.log('[addresses POST] Geocoding returned empty results')
+          } catch (fetchErr) {
+            console.warn('[addresses POST] Fetch error for query:', { query, error: fetchErr })
+            // Continue to next query
           }
-        } else {
-          console.log('[addresses POST] Geocoding request failed:', geoRes.status, geoRes.statusText)
+        }
+
+        if (!geocoded) {
+          console.log('[addresses POST] Geocoding exhausted all strategies, storing without coords')
         }
       } catch (err) {
         // Geocoding failed - continue without coordinates
