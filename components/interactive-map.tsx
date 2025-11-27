@@ -118,75 +118,46 @@ function LocationMarker({ onLocationFound }: { onLocationFound: (latlng: LatLng)
     
     useEffect(() => {
         if (hasLocatedRef.current) return;
-        
-        const tryGeolocation = async () => {
-            map.locate({
-                watch: false,
-                enableHighAccuracy: false,
-                timeout: 10000,
-                maximumAge: 300000 
-            });
 
-            timeoutRef.current = setTimeout(() => {
+        const tryNavigatorGeolocation = async () => {
+            if (!('geolocation' in navigator)) {
+                hasLocatedRef.current = true;
+                console.warn('Geolocalização não suportada pelo navegador, usando localização padrão');
+                onLocationFound(DEFAULT_LOCATION);
+                map.setView(DEFAULT_LOCATION, 13);
+                return;
+            }
+
+            try {
+                const position = await new Promise<GeolocationPosition>((resolve, reject) => {
+                    navigator.geolocation.getCurrentPosition(resolve, reject, {
+                        enableHighAccuracy: false,
+                        timeout: 10000,
+                        maximumAge: 300000,
+                    });
+                });
+
                 if (hasLocatedRef.current) return;
-                
-                if ('geolocation' in navigator) {
-                    navigator.geolocation.getCurrentPosition(
-                        (position) => {
-                            if (hasLocatedRef.current) return;
-                            hasLocatedRef.current = true;
-                            const latlng = new LatLng(position.coords.latitude, position.coords.longitude);
-                            onLocationFound(latlng);
-                            map.setView(latlng, 13);
-                        },
-                        (error) => {
-                            if (hasLocatedRef.current) return;
-                            hasLocatedRef.current = true;
-                            console.warn('Geolocalização falhou, usando localização padrão');
-                            onLocationFound(DEFAULT_LOCATION);
-                        },
-                        {
-                            enableHighAccuracy: false,
-                            timeout: 8000,
-                            maximumAge: 300000
-                        }
-                    );
-                } else {
-                    if (hasLocatedRef.current) return;
-                    hasLocatedRef.current = true;
-                    onLocationFound(DEFAULT_LOCATION);
-                }
-            }, 3000);
+                hasLocatedRef.current = true;
+                const latlng = new LatLng(position.coords.latitude, position.coords.longitude);
+                onLocationFound(latlng);
+                map.setView(latlng, 13);
+            } catch (err) {
+                // If browser's geolocation uses a network provider internally (e.g. Chromium calling Google's API)
+                // we avoid retrying against external services and fall back to the default location.
+                if (hasLocatedRef.current) return;
+                hasLocatedRef.current = true;
+                console.warn('Geolocalização falhou (provável provedor de rede com quota), usando localização padrão');
+                onLocationFound(DEFAULT_LOCATION);
+                map.setView(DEFAULT_LOCATION, 13);
+            }
         };
 
-        function onLocationFoundHandler(e: LocationFoundEvent) {
-            if (hasLocatedRef.current) return;
-            hasLocatedRef.current = true;
-            
-            if (timeoutRef.current) {
-                clearTimeout(timeoutRef.current);
-            }
-            
-            onLocationFound(e.latlng);
-            map.setView(e.latlng, 13);
-        }
-
-        function onLocationErrorHandler(e: LocationErrorEvent) {
-            // Não marca como located aqui, deixa o fallback do timeout funcionar
-            console.warn('Erro no map.locate, tentando fallback...');
-        }
-
-        map.on('locationfound', onLocationFoundHandler);
-        map.on('locationerror', onLocationErrorHandler);
-
-        tryGeolocation();
+        // Try navigator geolocation once; avoid map.locate to prevent repeated network geolocation calls
+        tryNavigatorGeolocation();
 
         return () => {
-            if (timeoutRef.current) {
-                clearTimeout(timeoutRef.current);
-            }
-            map.off('locationfound', onLocationFoundHandler);
-            map.off('locationerror', onLocationErrorHandler);
+            // nothing to cleanup for navigator.getCurrentPosition
         };
     }, [map, onLocationFound]);
 

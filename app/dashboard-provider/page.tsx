@@ -147,24 +147,7 @@ export default function DashboardProvider() {
           </aside>
         </main>
 
-        {/* Mobile sheet for sidebar */}
-        <div className="sm:hidden">
-          <Sheet>
-            <SheetTrigger asChild>
-              <button className="fixed bottom-6 right-6 z-40 h-12 w-12 rounded-full bg-primary-600 text-white shadow-lg flex items-center justify-center">
-                <Bolt />
-              </button>
-            </SheetTrigger>
-            <SheetContent side="bottom">
-              <SheetHeader>
-                <SheetTitle>Menu</SheetTitle>
-                <SheetDescription>Opções rápidas</SheetDescription>
-              </SheetHeader>
-              {sidebarContent}
-              <SheetFooter />
-            </SheetContent>
-          </Sheet>
-        </div>
+        {/* Mobile sheet removed — using desktop sidebar and map popups for actions */}
 
         {/* Chat panel - rendered when a conversation is open */}
         {openChatFor && (
