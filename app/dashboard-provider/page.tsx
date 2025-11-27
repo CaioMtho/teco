@@ -1,4 +1,5 @@
-'use client';
+"use client";
+import React from 'react';
 
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
@@ -51,17 +52,43 @@ const InteractiveMap = dynamic(
         )
     }
 );
+const Chat = dynamic(
+  () => import('@/../components/chat').then(mod => ({ default: mod.default })),
+  { ssr: false }
+);
 
 export default function DashboardProvider() {
     const router = useRouter();
+  const [openChatFor, setOpenChatFor] = React.useState<string | null>(null);
 
-    const handleStartChat = (requestId: string) => {
-        console.log('Iniciar chat com requisição:', requestId);
+    const handleStartChat = async (requestId: string) => {
+      try {
+        const res = await fetch('/api/chat/conversations', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ request_id: requestId })
+        })
+
+        if (!res.ok) {
+          console.error('Erro ao criar conversa', await res.text())
+          return
+        }
+
+        const data = await res.json()
+        setOpenChatFor(data.conversation.id)
+      } catch (err) {
+        console.error('Erro ao iniciar chat', err)
+      }
     };
 
     return (
-        <div className="h-screen w-full relative">
-            <InteractiveMap onStartChat={handleStartChat} />
+      <div className="h-screen w-full relative">
+        <InteractiveMap onStartChat={handleStartChat} />
+        <Dialog open={!!openChatFor} onOpenChange={(open) => { if (!open) setOpenChatFor(null) }}>
+          <DialogContent className="sm:max-w-[900px]">
+            {openChatFor && <Chat conversationId={openChatFor} />}
+          </DialogContent>
+        </Dialog>
             <div>
                <Sheet>
                 <div className='absolute right-0 z-100 h-2/3 top-[50]'>
