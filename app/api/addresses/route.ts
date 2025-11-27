@@ -32,7 +32,34 @@ export async function POST(request: NextRequest) {
     validateRequired(body, ['street', 'number', 'neighborhood', 'city', 'state', 'country', 'zip_code'])
     
     const { profile_id, is_primary, address_type, ...addressData } = body
-    
+    // If latitude/longitude weren't provided by the client, try server-side geocoding
+    if ((addressData.latitude === undefined || addressData.latitude === null) ||
+        (addressData.longitude === undefined || addressData.longitude === null)) {
+      try {
+        const qParts = [addressData.street, addressData.number, addressData.neighborhood, addressData.city, addressData.state, addressData.zip_code, addressData.country]
+          .filter(Boolean)
+          .join(', ')
+
+        const nominatimUrl = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(qParts)}&limit=1&addressdetails=0&accept-language=pt-BR`
+        const geoRes = await fetch(nominatimUrl, { headers: { 'User-Agent': 'teco-app/1.0 (+https://example.com)' } })
+        if (geoRes.ok) {
+          const geoJson = await geoRes.json()
+          if (Array.isArray(geoJson) && geoJson.length > 0) {
+            const first = geoJson[0]
+            const lat = parseFloat(first.lat)
+            const lon = parseFloat(first.lon)
+            if (!Number.isNaN(lat) && !Number.isNaN(lon)) {
+              addressData.latitude = lat
+              addressData.longitude = lon
+            }
+          }
+        }
+      } catch (err) {
+        // Geocoding failed - continue without coordinates
+        console.warn('Address geocoding failed', err)
+      }
+    }
+
     const address = await insertAddress(supabase, addressData)
     
     if (profile_id) {

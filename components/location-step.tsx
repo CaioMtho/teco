@@ -46,8 +46,6 @@ export function LocationStep({ onComplete, onBack }: LocationStepProps) {
     }
 
     onComplete({
-      latitude: 0,
-      longitude: 0,
       address: `${formData.street}, ${formData.number} - ${formData.neighborhood}, ${formData.city} - ${formData.state}`,
       ...formData,
     } as LocationData);
