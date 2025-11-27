@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { createServerSupabaseClient } from "lib/supabase/server";
-import { insertProfile, ProfileCreate } from 'lib/services/profiles-service';
-import { insertAddress, AddressCreate, linkAddressToProfile } from 'lib/services/addresses-service';
+import { insertProfile, ProfileCreate, deleteProfile } from 'lib/services/profiles-service';
+import { insertAddress, AddressCreate, linkAddressToProfile, updateAddress } from 'lib/services/addresses-service';
+import { createProviderProfile } from 'lib/services/provider-service';
 
 interface SignUpRequest {
     email: string;
@@ -20,6 +21,11 @@ interface SignUpRequest {
         latitude?: number;
         longitude?: number;
     };
+    provider?: {
+        bio?: string | null;
+        price_base?: number | null;
+        skills?: string[] | null;
+    } | undefined;
 }
 
 export async function POST(req: Request) {
@@ -69,6 +75,33 @@ export async function POST(req: Request) {
             is_primary: true,
             address_type: 'home'
         });
+
+        // If the user opted to be a provider, create a provider_profile record
+        if (profile.role === 'provider') {
+            try {
+                await createProviderProfile(supabase, {
+                    user_id: profile.id,
+                    bio: body.provider?.bio ?? null,
+                    price_base: body.provider?.price_base ?? null,
+                    skills: body.provider?.skills ?? null
+                })
+            } catch (err) {
+                console.error('Failed creating provider profile, rolling back profile/address:', err)
+                // attempt rollback of created profile and address to avoid orphaned records
+                try {
+                    await deleteProfile(supabase, profile.id)
+                } catch (e) {
+                    console.error('Failed deleting profile during rollback', e)
+                }
+                try {
+                    await updateAddress(supabase, address.id, { deleted_at: new Date().toISOString() })
+                } catch (e) {
+                    console.error('Failed marking address deleted during rollback', e)
+                }
+
+                return NextResponse.json({ error: 'Erro ao criar perfil de provider' }, { status: 500 })
+            }
+        }
 
         return NextResponse.json(
             { 
