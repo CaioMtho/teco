@@ -6,6 +6,14 @@ import { Icon, LatLng, divIcon } from 'leaflet';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { Card, CardHeader, CardTitle, CardDescription } from '../app/components/ui/card';
 import { Button } from '../app/components/ui/button';
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogFooter,
+    DialogClose,
+} from '../app/components/ui/dialog';
 import { MapPin, MessageCircle, Loader2, AlertCircle, User } from 'lucide-react';
 import 'leaflet/dist/leaflet.css';
 
@@ -222,8 +230,9 @@ export function InteractiveMap({ onStartChat }: InteractiveMapProps) {
                 throw new Error(`Erro ${response.status}: ${response.statusText}`);
             }
 
-            const data: RequestLocation[] = await response.json();
-            
+            const json = await response.json();
+            const data: RequestLocation[] = Array.isArray(json) ? json : (Array.isArray((json as any).data) ? (json as any).data : [])
+
             const nearby = data.filter((request) => {
                 if (
                     request.latitude === null || 
@@ -279,6 +288,19 @@ export function InteractiveMap({ onStartChat }: InteractiveMapProps) {
         }
     };
 
+    const [selectedRequest, setSelectedRequest] = useState<RequestLocation | null>(null);
+    const [openDetails, setOpenDetails] = useState(false);
+
+    const openRequestDetails = (req: RequestLocation) => {
+        setSelectedRequest(req);
+        setOpenDetails(true);
+    }
+
+    const closeRequestDetails = () => {
+        setSelectedRequest(null);
+        setOpenDetails(false);
+    }
+
     return (
         <div className="w-full h-full relative">
             {loading && (
@@ -333,20 +355,52 @@ export function InteractiveMap({ onStartChat }: InteractiveMapProps) {
                                             year: 'numeric',
                                         })}
                                     </div>
-                                    <Button
-                                        size="sm"
-                                        className="w-full"
-                                        onClick={() => handleStartChat(request.id)}
-                                    >
-                                        <MessageCircle className="h-4 w-4 mr-2" />
-                                        Iniciar Chat
-                                    </Button>
+                                    <div className="flex gap-2">
+                                        <Button
+                                            size="sm"
+                                            className="flex-1"
+                                            onClick={() => handleStartChat(request.id)}
+                                        >
+                                            <MessageCircle className="h-4 w-4 mr-2" />
+                                            Iniciar Chat
+                                        </Button>
+                                        <Button
+                                            size="sm"
+                                            variant="outline"
+                                            onClick={() => openRequestDetails(request)}
+                                        >
+                                            Ver detalhes
+                                        </Button>
+                                    </div>
                                 </div>
                             </Popup>
                         </Marker>
                     )
                 ))}
             </MapContainer>
+
+                {/* Request details dialog (use shared Dialog for consistent UI) */}
+                <Dialog open={openDetails} onOpenChange={(v) => { if (!v) closeRequestDetails(); setOpenDetails(v); }}>
+                    <DialogContent className="max-w-2xl w-full mx-4">
+                        {selectedRequest ? (
+                            <div className="p-4">
+                                <div className="flex items-start justify-between">
+                                    <div>
+                                        <h3 className="text-xl font-semibold">{selectedRequest.title}</h3>
+                                        <p className="text-sm text-neutral-600 mt-2">{selectedRequest.description}</p>
+                                        <div className="text-xs text-neutral-500 mt-3">Solicitado em: {new Date(selectedRequest.created_at).toLocaleString('pt-BR')}</div>
+                                    </div>
+                                    <div className="ml-4 flex-shrink-0 flex flex-col gap-2">
+                                        <DialogClose asChild>
+                                            <Button variant="ghost">Fechar</Button>
+                                        </DialogClose>
+                                        <Button onClick={() => { handleStartChat(selectedRequest.id); closeRequestDetails(); }}>Iniciar Chat</Button>
+                                    </div>
+                                </div>
+                            </div>
+                        ) : null}
+                    </DialogContent>
+                </Dialog>
 
             {error && (
                 <div className="absolute top-4 left-4 z-[1000] bg-amber-50 border border-amber-200 rounded-lg shadow-lg p-3 max-w-xs">

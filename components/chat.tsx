@@ -16,9 +16,10 @@ import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/componen
 
 interface Props {
   conversationId?: string
+  onClose?: () => void
 }
 
-export default function Chat({ conversationId }: Props) {
+export default function Chat({ conversationId, onClose }: Props) {
   const [messages, setMessages] = useState<Array<any>>([])
   const [content, setContent] = useState('')
   const [profile, setProfile] = useState<any>(null)
@@ -229,6 +230,9 @@ export default function Chat({ conversationId }: Props) {
           <AvatarFallback>CN</AvatarFallback>
         </Avatar>
         <DialogTitle>{conversation ? `Chat - ${conversation.request_id}` : 'Chat'}</DialogTitle>
+        <div className="ml-auto">
+          <Button variant="ghost" onClick={() => onClose && onClose()}>Fechar</Button>
+        </div>
       </DialogHeader>
 
       <div>
