@@ -20,7 +20,27 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 
+const { data: { user } } = await supabase.auth.getUser();
+console.log(user);
+console.log(user?.email);
+const res = await fetch(`/api/profiles/me`);
+console.log(res);
+const json = await res.json();
+console.log("3-"+json);
+
+const jsonString: string = JSON.stringify(json);
+
+console.log(JSON.stringify(json, null, 2));
+
+
+
+
+
+
 export default function Page() {
+
+  //console.log("------->"+json);
+
   const { modalState, closeModal, showConfirm, showSuccess, showError } = useModal()
   
   const handleSignOut = async () => {
@@ -43,11 +63,13 @@ export default function Page() {
     )
   }
 
+ 
+
   return (
-    <div className="h-full  overflow-x-hidden overflow-y-auto">
+    <div className="overflow-x-hidden overflow-y-auto">
       <h1 className='text-5xl pb-3 pt-6 ps-6'>Dashboard</h1>
-      <div id="dashboard" className="bg-white border-2 border-gray-200 rounded-sm mx-2 my-2 py-3 mb-12 sm:mx-24 flex flex-wrap h-lvh sm:h-full overflow-hidden">
-        <div id="left-side" className='ml-6'>
+      <div id="dashboard" className="bg-white border-2 border-gray-200 rounded-sm mx-2 my-2 py-3 mb-12 sm:mx-24 flex flex-wrap sm:h-auto overflow-hidden">
+        <div id="left-side" className='mx-auto lg:ml-6'>
         
         <div className=''>
           <Image 
@@ -57,7 +79,7 @@ export default function Page() {
             width={64}
             height={64}
           />
-          <h2 className='text-2xl'>nome do usuário</h2>
+          <h2 className='text-xl text-center text-wrap truncate'>{json?.profile.name}</h2>
           <div className='flex justify-center'>
 
               <Dialog>
@@ -82,15 +104,15 @@ export default function Page() {
         </div>
 
       </div>
-      <div className='flex-col mb-12 ms-6 h-lh'>
-        <div className='justify-self-center self-center my-12 ms-6 text-md sm:text-lg text-wrap'>
+      <div className='flex-col mb-12 ms-2 px-2 sm:ms-6'>
+        <div className='justify-self-center self-center shrink my-12 ms-0 sm:ms-6 h-auto lg:h-auto w-auto text-sm text-center sm:text-lg text-wrap'>
            se conecte com técnicos de informática qualificados para resolver os seus problemas
 
         </div>
-        <div className='self-end mt-24'>
+        <div className=' mt-24'>
           <p className='text-gray-700'>mensagens recentes:</p>
-          <div className='flex flex-wrap'>
-            <div className='bg-gray-200 w-md h-32 border rounded-md'>
+          <div className='flex flex-wrap space-x-0 sm:space-x-2'>
+            <div className='bg-gray-200 w-full sm:w-md h-32 border rounded-md'>
               <Dialog>
                 <form>
                   <DialogTrigger asChild>
@@ -104,7 +126,7 @@ export default function Page() {
               </Dialog>
 
             </div>
-            <div className='bg-gray-200 w-md h-32 ms-2 border rounded-md'>
+            <div className='bg-gray-200 w-full sm:w-md h-32 ms-0 sm:mx-5 border rounded-md'>
               <Dialog>
                 <form>
                   <DialogTrigger asChild>

@@ -72,44 +72,75 @@ export default function DashboardProvider() {
       }
     };
 
-    // Sidebar content (extract to reuse for mobile sheet)
-    const sidebarContent = (
-      <div className='mx-auto w-full sm:w-auto p-4'>
-        <Image
-          src="/user-icon.png"
-          alt="icone"
-          className="size-48 mt-3 mx-auto bg-gray-300 rounded-full"
-          width={64}
-          height={64}
-        />
-        <h2 className='text-2xl text-center mt-2'>nome do usuário</h2>
-        <div className='flex flex-col sm:flex-row items-stretch gap-2 mt-6'>
-          <Dialog>
-            <form>
-              <DialogTrigger asChild>
-                <button className="h-12 px-3 py-2 bg-white text-black rounded-md border border-gray-300 hover:bg-gray-50 transition-colors">Calendário</button>
-              </DialogTrigger>
-              <CalendarProvider />
-            </form>
-          </Dialog>
+    return (
+        <div className="h-screen w-full relative">
+            <InteractiveMap onStartChat={handleStartChat} />
+            <div>
+               <Sheet>
+                <div className='absolute right-0 z-100 h-2/3 top-[50]'>
+                    <SheetTrigger asChild>
+                        <button className='bg-white h-full px-2 rounded-l-lg outline-1 outline-offset-2 outline-gray-300'><ArrowLeft /></button>
+                    </SheetTrigger>
+                </div>
+                <SheetContent className=''>
+                    <SheetHeader>
 
-          <Dialog>
-            <form>
-              <DialogTrigger asChild>
-                <button className="h-12 px-3 py-2 bg-white text-black rounded-md border border-gray-300 hover:bg-gray-50 transition-colors">Análise de ganhos</button>
-              </DialogTrigger>
-              <GainProvider />
-            </form>
-          </Dialog>
+                    </SheetHeader>
+                            <div className='mx-auto w-full sm:w-auto'>
+                              <Image 
+                                src="/user-icon.png"
+                                alt="icone"
+                                className="size-48 mt-3 mx-auto bg-gray-300 rounded-full"
+                                width={64}
+                                height={64}
+                              />
+                              <h2 className='text-2xl text-center'>nome do usuário</h2>
+                              <div className='flex items-stretch mt-6'>
+                    
+                                  <Dialog>
+                                    <form>
+                                      <DialogTrigger asChild>
+                                        
+                                          <button  className="h-16 px-4 py-2 bg-white text-black rounded-md border border-gray-300 hover:bg-gray-200 transition-colors">Calendário</button>
+                                        
+                                      </DialogTrigger>
+                                       <CalendarProvider />
+                                      </form>
+                                  </Dialog>
+                    
+                                  <Dialog>
+                                    <form>
+                                      <DialogTrigger asChild>
+                                      <button  className="h-16 px-4 py-2 bg-white text-black rounded-md border border-gray-300 hover:bg-gray-200 transition-colors">Análise de ganhos</button>
+                                      </DialogTrigger>
+                                      <GainProvider />
+                                    </form>
+                                  </Dialog>
 
-          <Dialog>
-            <form>
-              <DialogTrigger asChild>
-                <button className="h-12 px-3 py-2 bg-white text-black rounded-md border border-gray-300 hover:bg-gray-50 transition-colors">Configurações</button>
-              </DialogTrigger>
-              <SettingsProvider />
-            </form>
-          </Dialog>
+                                  <Dialog>
+                                    <form>
+                                      <DialogTrigger asChild>
+                                      <button  className="h-16 px-4 py-2 bg-white text-black rounded-md border border-gray-300 hover:bg-gray-200 transition-colors">configurações</button>
+                                      </DialogTrigger>
+                                      <SettingsProvider />
+                                    </form>
+                                  </Dialog>
+                              
+                              </div>
+                              <div className='mt-6 flex items-center'>
+                                <div className='m-1'><Search /></div>
+                                <input type="search" className="h-10 px-1 w-full bg-gray-200 text-gray-800 border-0 rounded-sm " name="search"></input>
+                              </div>
+                            </div>
+                    <SheetFooter>
+
+                    <SheetClose asChild>
+                        <Button variant="outline">Fechar</Button>
+                    </SheetClose>
+                    </SheetFooter>
+                </SheetContent>
+                </Sheet>
+            </div>
         </div>
 
         <div className='mt-6 flex items-center'>

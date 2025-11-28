@@ -9,10 +9,8 @@ import { DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/compon
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-// modal component not used here; review uses ReviewModal
-import { supabase } from 'lib/supabase/client'
-import ReviewModal from './review-modal'
-import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/card'
+import { MessageSquare } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 
 interface Props {
   conversationId?: string
@@ -156,22 +154,8 @@ export default function Chat({ conversationId, onClose }: Props) {
       if (!res.ok) throw new Error('proposal failed')
       const { proposal } = await res.json()
 
-      // send a message linking the proposal
-      const msgRes = await fetch(makeApiUrl(`/api/chat/conversations/${conversationId}/messages`), {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content: `PROPOSAL:${proposal.id}` })
-      })
-      const { message } = await msgRes.json()
-      setMessages(prev => [...prev, message])
-      setShowProposalForm(false)
-      setProposalAmount('')
-      setProposalMessage('')
-      setProposalDate('')
-    } catch (err) {
-      console.error(err)
-    }
-  }
+          <div className="">
+            <ScrollArea className="h-xl w-auto md:w-[775px] rounded-md border p-4">
 
   const acceptProposal = async (proposalId: string) => {
     try {
@@ -334,11 +318,15 @@ function ProposalMessage({ proposalId, isMe, onAccept }: { proposalId: string, i
       })
       .subscribe()
 
-    return () => {
-      mounted = false
-      if (propChannelRef.current) supabase.removeChannel(propChannelRef.current)
-    }
-  }, [proposalId])
+          <DialogFooter className="flex w-full justify-between">
+            <div>
+              <Input id="campo-mensagem" className="w-fit" name="campo-mensagem" defaultValue="" />
+            </div>
+              <Button type="submit" className="w-fit"><ArrowRight /></Button>
+            <div></div>
+
+          </DialogFooter>
+        </DialogContent>
 
   if (!proposal) return <Message sender={isMe ? 'sender' : 'receiver'}>Carregando proposta...</Message>
 
