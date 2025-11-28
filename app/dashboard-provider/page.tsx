@@ -74,7 +74,6 @@ export default function DashboardProvider() {
       {/* Mapa interativo */}
       <InteractiveMap onStartChat={handleStartChat} />
 
-      {/* Sidebar antiga (Sheet) */}
       <div>
         <Sheet>
           <div className="absolute right-0 z-100 h-2/3 top-[50px]">
@@ -97,13 +96,13 @@ export default function DashboardProvider() {
                 height={64}
               />
 
-              <h2 className="text-2xl text-center mt-2">nome do usu�rio</h2>
+              <h2 className="text-2xl text-center mt-2">nome do usuário</h2>
 
               <div className="flex items-stretch mt-6 gap-2">
                 <Dialog>
                   <DialogTrigger asChild>
                     <button className="h-16 px-4 py-2 bg-white text-black rounded-md border border-gray-300 hover:bg-gray-200 transition-colors">
-                      Calend�rio
+                      Calendário
                     </button>
                   </DialogTrigger>
                   <CalendarProvider />
@@ -112,7 +111,7 @@ export default function DashboardProvider() {
                 <Dialog>
                   <DialogTrigger asChild>
                     <button className="h-16 px-4 py-2 bg-white text-black rounded-md border border-gray-300 hover:bg-gray-200 transition-colors">
-                      An�lise de ganhos
+                      Análise de ganhos
                     </button>
                   </DialogTrigger>
                   <GainProvider />
@@ -121,14 +120,13 @@ export default function DashboardProvider() {
                 <Dialog>
                   <DialogTrigger asChild>
                     <button className="h-16 px-4 py-2 bg-white text-black rounded-md border border-gray-300 hover:bg-gray-200 transition-colors">
-                      Configura��es
+                      Configurações
                     </button>
                   </DialogTrigger>
                   <SettingsProvider />
                 </Dialog>
               </div>
 
-              {/* Campo de busca */}
               <div className="mt-6 flex items-center">
                 <Search className="m-1" />
                 <input
@@ -148,7 +146,6 @@ export default function DashboardProvider() {
         </Sheet>
       </div>
 
-      {/* Chat flutuante */}
       {openChatFor && (
         <div className="fixed right-0 bottom-0 md:right-6 md:bottom-6 z-50 w-full md:w-96 h-screen md:h-[520px] bg-white border rounded-none md:rounded-lg shadow-lg overflow-hidden">
           <Chat conversationId={openChatFor} onClose={() => setOpenChatFor(null)} />
