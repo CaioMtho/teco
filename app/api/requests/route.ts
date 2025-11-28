@@ -20,6 +20,11 @@ export async function GET(request: NextRequest) {
     }
     
     const result = await getRequests(supabase, opts)
+    try {
+      console.log('[GET /api/requests] result.count=', result.count, 'data.length=', Array.isArray(result.data) ? result.data.length : 0)
+    } catch (err) {
+      // ignore
+    }
     return NextResponse.json(result)
   } catch (error) {
     return handleError(error)
@@ -45,7 +50,12 @@ export async function POST(request: NextRequest) {
     }
     
     const newRequest = await createRequest(supabase, requestData)
-    
+    try {
+      console.log('[POST /api/requests] created request id=', newRequest?.id)
+    } catch (err) {
+      // ignore
+    }
+
     return NextResponse.json({ request: newRequest }, { status: 201 })
   } catch (error) {
     return handleError(error)
