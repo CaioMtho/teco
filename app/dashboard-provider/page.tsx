@@ -1,191 +1,159 @@
 "use client";
-import React from 'react';
 
-import dynamic from 'next/dynamic';
-import { useRouter } from 'next/navigation';
-import { Loader2 } from 'lucide-react';
-import Image from 'next/image'
+import React from "react";
+import dynamic from "next/dynamic";
+import { Loader2, ArrowLeft, Search } from "lucide-react";
+import Image from "next/image";
 
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button";
 
-import CalendarProvider from "components/calendar-provider"
-import GainProvider from "components/gain-provider"
-import SettingsProvider from "components/settings-provider"
-
-import { Bolt } from 'lucide-react';
-import { ArrowLeft } from 'lucide-react';
-import { Search } from 'lucide-react';
+import CalendarProvider from "components/calendar-provider";
+import GainProvider from "components/gain-provider";
+import SettingsProvider from "components/settings-provider";
 
 import {
   Dialog,
   DialogTrigger,
-} from "@/components/ui/dialog"
+} from "@/components/ui/dialog";
 
 import {
   Sheet,
   SheetContent,
   SheetFooter,
   SheetHeader,
-  SheetTitle,
-  SheetDescription,
   SheetTrigger,
-} from "@/components/ui/sheet"
+  SheetClose,
+} from "@/components/ui/sheet";
 
 const InteractiveMap = dynamic(
-    () => import('@/../components/interactive-map').then(mod => ({ default: mod.InteractiveMap })),
-    {
-        ssr: false,
-        loading: () => (
-            <div className="h-screen w-full flex items-center justify-center bg-neutral-50">
-                <Loader2 className="h-8 w-8 animate-spin text-neutral-500" />
-            </div>
-        )
-    }
+  () =>
+    import("@/../components/interactive-map").then((mod) => ({
+      default: mod.InteractiveMap,
+    })),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="h-screen w-full flex items-center justify-center bg-neutral-50">
+        <Loader2 className="h-8 w-8 animate-spin text-neutral-500" />
+      </div>
+    ),
+  }
 );
+
 const Chat = dynamic(
-  () => import('@/../components/chat').then(mod => ({ default: mod.default })),
+  () => import("@/../components/chat").then((mod) => ({ default: mod.default })),
   { ssr: false }
 );
 
 export default function DashboardProvider() {
-    const router = useRouter();
-    const [openChatFor, setOpenChatFor] = React.useState<string | null>(null);
+  const [openChatFor, setOpenChatFor] = React.useState<string | null>(null);
 
-    const handleStartChat = async (requestId: string) => {
-      try {
-        const res = await fetch('/api/chat/conversations', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ request_id: requestId })
-        })
+  const handleStartChat = async (requestId: string) => {
+    try {
+      const res = await fetch("/api/chat/conversations", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ request_id: requestId }),
+      });
 
-        if (!res.ok) {
-          console.error('Erro ao criar conversa', await res.text())
-          return
-        }
-
-        const data = await res.json()
-        setOpenChatFor(data.conversation.id)
-      } catch (err) {
-        console.error('Erro ao iniciar chat', err)
+      if (!res.ok) {
+        console.error("Erro ao criar conversa", await res.text());
+        return;
       }
-    };
 
-    return (
-        <div className="h-screen w-full relative">
-            <InteractiveMap onStartChat={handleStartChat} />
-            <div>
-               <Sheet>
-                <div className='absolute right-0 z-100 h-2/3 top-[50]'>
-                    <SheetTrigger asChild>
-                        <button className='bg-white h-full px-2 rounded-l-lg outline-1 outline-offset-2 outline-gray-300'><ArrowLeft /></button>
-                    </SheetTrigger>
-                </div>
-                <SheetContent className=''>
-                    <SheetHeader>
+      const data = await res.json();
+      setOpenChatFor(data.conversation.id);
+    } catch (err) {
+      console.error("Erro ao iniciar chat", err);
+    }
+  };
 
-                    </SheetHeader>
-                            <div className='mx-auto w-full sm:w-auto'>
-                              <Image 
-                                src="/user-icon.png"
-                                alt="icone"
-                                className="size-48 mt-3 mx-auto bg-gray-300 rounded-full"
-                                width={64}
-                                height={64}
-                              />
-                              <h2 className='text-2xl text-center'>nome do usuário</h2>
-                              <div className='flex items-stretch mt-6'>
-                    
-                                  <Dialog>
-                                    <form>
-                                      <DialogTrigger asChild>
-                                        
-                                          <button  className="h-16 px-4 py-2 bg-white text-black rounded-md border border-gray-300 hover:bg-gray-200 transition-colors">Calendário</button>
-                                        
-                                      </DialogTrigger>
-                                       <CalendarProvider />
-                                      </form>
-                                  </Dialog>
-                    
-                                  <Dialog>
-                                    <form>
-                                      <DialogTrigger asChild>
-                                      <button  className="h-16 px-4 py-2 bg-white text-black rounded-md border border-gray-300 hover:bg-gray-200 transition-colors">Análise de ganhos</button>
-                                      </DialogTrigger>
-                                      <GainProvider />
-                                    </form>
-                                  </Dialog>
+  return (
+    <div className="h-screen w-full relative">
+      
+      {/* Mapa interativo */}
+      <InteractiveMap onStartChat={handleStartChat} />
 
-                                  <Dialog>
-                                    <form>
-                                      <DialogTrigger asChild>
-                                      <button  className="h-16 px-4 py-2 bg-white text-black rounded-md border border-gray-300 hover:bg-gray-200 transition-colors">configurações</button>
-                                      </DialogTrigger>
-                                      <SettingsProvider />
-                                    </form>
-                                  </Dialog>
-                              
-                              </div>
-                              <div className='mt-6 flex items-center'>
-                                <div className='m-1'><Search /></div>
-                                <input type="search" className="h-10 px-1 w-full bg-gray-200 text-gray-800 border-0 rounded-sm " name="search"></input>
-                              </div>
-                            </div>
-                    <SheetFooter>
-
-                    <SheetClose asChild>
-                        <Button variant="outline">Fechar</Button>
-                    </SheetClose>
-                    </SheetFooter>
-                </SheetContent>
-                </Sheet>
-            </div>
-        </div>
-
-        <div className='mt-6 flex items-center'>
-          <div className='m-1'><Search /></div>
-          <input type="search" className="h-10 px-2 w-full bg-gray-100 text-gray-800 border-0 rounded-sm " name="search" placeholder="Buscar" />
-        </div>
-      </div>
-    )
-
-    return (
-      <div className="min-h-screen w-full relative bg-white">
-        {/* Top bar */}
-        <header className="w-full border-b bg-white px-4 py-3 flex items-center gap-3">
-          <button onClick={() => router.back()} className="p-2 rounded-md hover:bg-gray-100">
-            <ArrowLeft />
-          </button>
-          <h1 className="text-lg font-semibold">Painel de Prestador</h1>
-          <div className="ml-auto flex items-center gap-2">
-            <div className="hidden sm:block">
-              <Input placeholder="Buscar" />
-            </div>
-            <Button variant="ghost">Perfil</Button>
+      {/* Sidebar antiga (Sheet) */}
+      <div>
+        <Sheet>
+          <div className="absolute right-0 z-100 h-2/3 top-[50px]">
+            <SheetTrigger asChild>
+              <button className="bg-white h-full px-2 rounded-l-lg outline outline-1 outline-gray-300">
+                <ArrowLeft />
+              </button>
+            </SheetTrigger>
           </div>
-        </header>
 
-        {/* Main content: map + desktop sidebar */}
-        <main className="w-full h-[calc(100vh-64px)] flex flex-col-reverse sm:flex-row">
-          <section className="flex-1 h-1/2 sm:h-full min-h-64">
-            <InteractiveMap onStartChat={handleStartChat} />
-          </section>
+          <SheetContent>
+            <SheetHeader />
 
-          {/* Desktop sidebar - visible on sm and up; mobile sheet for small screens */}
-          <aside className="w-full sm:w-80 sm:border-l h-1/2 sm:h-full overflow-y-auto bg-neutral-50 border-t sm:border-t-0">
-            {sidebarContent}
-          </aside>
-        </main>
+            <div className="mx-auto w-full sm:w-auto">
+              <Image
+                src="/user-icon.png"
+                alt="icone"
+                className="size-48 mt-3 mx-auto bg-gray-300 rounded-full"
+                width={64}
+                height={64}
+              />
 
-        {/* Mobile sheet removed — using desktop sidebar and map popups for actions */}
+              <h2 className="text-2xl text-center mt-2">nome do usu�rio</h2>
 
-        {/* Chat panel - rendered when a conversation is open */}
-        {openChatFor && (
-          <div className="fixed right-0 bottom-0 md:right-6 md:bottom-6 z-50 w-full md:w-96 h-screen md:h-[520px] bg-white border rounded-none md:rounded-lg shadow-lg overflow-hidden md:shadow-lg">
-            <Chat conversationId={openChatFor} onClose={() => setOpenChatFor(null)} />
-          </div>
-        )}
+              <div className="flex items-stretch mt-6 gap-2">
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <button className="h-16 px-4 py-2 bg-white text-black rounded-md border border-gray-300 hover:bg-gray-200 transition-colors">
+                      Calend�rio
+                    </button>
+                  </DialogTrigger>
+                  <CalendarProvider />
+                </Dialog>
+
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <button className="h-16 px-4 py-2 bg-white text-black rounded-md border border-gray-300 hover:bg-gray-200 transition-colors">
+                      An�lise de ganhos
+                    </button>
+                  </DialogTrigger>
+                  <GainProvider />
+                </Dialog>
+
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <button className="h-16 px-4 py-2 bg-white text-black rounded-md border border-gray-300 hover:bg-gray-200 transition-colors">
+                      Configura��es
+                    </button>
+                  </DialogTrigger>
+                  <SettingsProvider />
+                </Dialog>
+              </div>
+
+              {/* Campo de busca */}
+              <div className="mt-6 flex items-center">
+                <Search className="m-1" />
+                <input
+                  type="search"
+                  className="h-10 px-1 w-full bg-gray-200 text-gray-800 border-0 rounded-sm"
+                  name="search"
+                />
+              </div>
+            </div>
+
+            <SheetFooter>
+              <SheetClose asChild>
+                <Button variant="outline">Fechar</Button>
+              </SheetClose>
+            </SheetFooter>
+          </SheetContent>
+        </Sheet>
       </div>
-    )
+
+      {/* Chat flutuante */}
+      {openChatFor && (
+        <div className="fixed right-0 bottom-0 md:right-6 md:bottom-6 z-50 w-full md:w-96 h-screen md:h-[520px] bg-white border rounded-none md:rounded-lg shadow-lg overflow-hidden">
+          <Chat conversationId={openChatFor} onClose={() => setOpenChatFor(null)} />
+        </div>
+      )}
+    </div>
+  );
 }
