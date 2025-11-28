@@ -60,6 +60,7 @@ export async function getRequests(
   if (error) throw error
 
   const rows = (data ?? []) as RequestRow[]
+
   const total = typeof count === 'number' ? count : rows.length
   const totalPages = safePerPage > 0 ? Math.ceil(total / safePerPage) : 0
 
