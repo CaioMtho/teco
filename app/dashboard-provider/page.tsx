@@ -136,13 +136,13 @@ export default function DashboardProvider() {
         </header>
 
         {/* Main content: map + desktop sidebar */}
-        <main className="w-full h-[calc(100vh-64px)] flex">
-          <section className="flex-1 h-full">
+        <main className="w-full h-[calc(100vh-64px)] flex flex-col-reverse sm:flex-row">
+          <section className="flex-1 h-1/2 sm:h-full min-h-64">
             <InteractiveMap onStartChat={handleStartChat} />
           </section>
 
-          {/* Desktop sidebar - visible on sm and up */}
-          <aside className="hidden sm:block w-80 border-l bg-neutral-50">
+          {/* Desktop sidebar - visible on sm and up; mobile sheet for small screens */}
+          <aside className="w-full sm:w-80 sm:border-l h-1/2 sm:h-full overflow-y-auto bg-neutral-50 border-t sm:border-t-0">
             {sidebarContent}
           </aside>
         </main>
@@ -151,7 +151,7 @@ export default function DashboardProvider() {
 
         {/* Chat panel - rendered when a conversation is open */}
         {openChatFor && (
-          <div className="fixed right-6 bottom-6 z-50 w-96 h-[520px] bg-white border rounded-lg shadow-lg overflow-hidden">
+          <div className="fixed right-0 bottom-0 md:right-6 md:bottom-6 z-50 w-full md:w-96 h-screen md:h-[520px] bg-white border rounded-none md:rounded-lg shadow-lg overflow-hidden md:shadow-lg">
             <Chat conversationId={openChatFor} onClose={() => setOpenChatFor(null)} />
           </div>
         )}

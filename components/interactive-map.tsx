@@ -189,7 +189,26 @@ export function InteractiveMap({ onStartChat }: InteractiveMapProps) {
         return R * c;
     };
 
-    const fetchNearbyRequests = async (latitude: number, longitude: number) => {
+        const fetchNearbyRequests = async (latitude: number, longitude: number) => {
+            try {
+                if (abortControllerRef.current) {
+                    abortControllerRef.current.abort();
+                }
+
+                abortControllerRef.current = new AbortController();
+
+                const response = await fetch('/api/requests', {
+                    signal: abortControllerRef.current.signal
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Erro ${response.status}: ${response.statusText}`);
+                }
+
+                const json = await response.json();
+                const data: any[] = Array.isArray(json) ? json : (Array.isArray((json as any).data) ? (json as any).data : [])
+
+                const fetchNearbyRequests = async (latitude: number, longitude: number) => {
         try {
             if (abortControllerRef.current) {
                 abortControllerRef.current.abort();
@@ -206,43 +225,10 @@ export function InteractiveMap({ onStartChat }: InteractiveMapProps) {
             }
 
             const json = await response.json();
-            const data: any[] = Array.isArray(json) ? json : (Array.isArray((json as any).data) ? (json as any).data : [])
+            const data: any[] = Array.isArray(json) ? json : (Array.isArray((json as any).data) ? (json as any).data : []);
 
-            const nearby = data.filter((request) => {
-                // Get coordinates from request or from nested address
-                let lat: number | null = null;
-                let lon: number | null = null;
-
-                if (request.latitude != null && request.longitude != null) {
-                    lat = request.latitude;
-                    lon = request.longitude;
-                } else if (request.address?.latitude != null && request.address?.longitude != null) {
-                    lat = request.address.latitude;
-                    lon = request.address.longitude;
-                }
-
-                // Filter invalid coords
-                if (
-                    lat === null || 
-                    lon === null ||
-                    typeof lat !== 'number' ||
-                    typeof lon !== 'number' ||
-                    isNaN(lat) ||
-                    isNaN(lon)
-                ) {
-                    return false;
-                }
-
-                const distance = calculateDistance(
-                    latitude, 
-                    longitude, 
-                    lat, 
-                    lon
-                );
-                
-                return distance <= SEARCH_RADIUS_KM;
-            }).map(req => {
-                // Normalize: copy address coords to root level if not present
+            // Normalize coords (mantém a lógica original)
+            const all = data.map(req => {
                 if (req.latitude == null && req.address?.latitude != null) {
                     req.latitude = req.address.latitude;
                 }
@@ -252,7 +238,20 @@ export function InteractiveMap({ onStartChat }: InteractiveMapProps) {
                 return req;
             });
 
-            setRequests(nearby);
+            setRequests(all);
+
+        } catch (err) {
+            if (err instanceof Error && err.name === 'AbortError') {
+                return;
+            }
+
+            console.error('Erro ao buscar requisições:', err);
+            setError('Não foi possível carregar as requisições próximas');
+        } finally {
+            setLoading(false);
+        }
+    };
+
         } catch (err) {
             if (err instanceof Error && err.name === 'AbortError') {
                 return;
@@ -378,20 +377,20 @@ export function InteractiveMap({ onStartChat }: InteractiveMapProps) {
 
                 {/* Request details dialog (use shared Dialog for consistent UI) */}
                 <Dialog open={openDetails} onOpenChange={(v) => { if (!v) closeRequestDetails(); setOpenDetails(v); }}>
-                    <DialogContent className="max-w-2xl w-full mx-4">
+                    <DialogContent className="max-w-2xl w-full mx-4 sm:mx-auto">
                         {selectedRequest ? (
                             <div className="p-4">
-                                <div className="flex items-start justify-between">
-                                    <div>
-                                        <h3 className="text-xl font-semibold">{selectedRequest.title}</h3>
-                                        <p className="text-sm text-neutral-600 mt-2">{selectedRequest.description}</p>
+                                <div className="flex flex-col sm:flex-row items-start justify-between gap-4">
+                                    <div className="flex-1 min-w-0">
+                                        <h3 className="text-lg sm:text-xl font-semibold break-words">{selectedRequest.title}</h3>
+                                        <p className="text-sm text-neutral-600 mt-2 break-words">{selectedRequest.description}</p>
                                         <div className="text-xs text-neutral-500 mt-3">Solicitado em: {new Date(selectedRequest.created_at).toLocaleString('pt-BR')}</div>
                                     </div>
-                                    <div className="ml-4 flex-shrink-0 flex flex-col gap-2">
+                                    <div className="flex-shrink-0 flex flex-col gap-2 w-full sm:w-auto">
                                         <DialogClose asChild>
-                                            <Button variant="ghost">Fechar</Button>
+                                            <Button variant="ghost" className="w-full sm:w-auto">Fechar</Button>
                                         </DialogClose>
-                                        <Button onClick={() => { handleStartChat(selectedRequest.id); closeRequestDetails(); }}>Iniciar Chat</Button>
+                                        <Button onClick={() => { handleStartChat(selectedRequest.id); closeRequestDetails(); }} className="w-full sm:w-auto">Iniciar Chat</Button>
                                     </div>
                                 </div>
                             </div>
