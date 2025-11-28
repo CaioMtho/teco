@@ -78,7 +78,7 @@ export function DetailsStep({ triageData, onComplete, onBack }: DetailsStepProps
   };
 
   return (
-    <Card className="p-6">
+    <Card className="px-2 py-4 sm:p-6 overflow-hidden">
       <div className="space-y-6">
         <div>
           <h2 className="text-xl font-semibold text-neutral-900 mb-2">

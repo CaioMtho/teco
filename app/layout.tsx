@@ -1,3 +1,4 @@
+
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
@@ -9,6 +10,11 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 import { Analytics } from "@vercel/analytics/next"
+import { supabase } from 'lib/supabase/client'
+
+import EntrarButton from "../components/menu/entrar-button"
+import MenuPopover from "../components/menu/menuPopover"
+
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -25,18 +31,22 @@ export const metadata: Metadata = {
   description: "Plataforma Marketplace para Serviços de TI",
 };
 
+
+
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+
   return (
+
     <html lang="en">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased `}
       >
-        <header className="w-auto bg-neutral-900 text-white">
-          <div className="px-5 shadow-sm flex items-center">
+        <header className="w-auto bg-neutral-900 text-white z-9000">
+          <div className="px-5 shadow-sm flex items-center z-9000">
             <Link href="/">
               <Image
                 src="/teco-logo-escuro-sem-fundo.png"
@@ -46,39 +56,11 @@ export default function RootLayout({
               />
             </Link>
 
+
+
             
-            <Image
-              src="/search-icon.png"
-              alt="icone"
-              className="mr-4 ms-auto w-6 h-6"
-              width={64}
-              height={64}
-            />
-            <input type="search" className="h-10 me-12 bg-gray-300 text-gray-800 border-0 rounded-lg " name="search"></input>
-            
-            <Link href="/login" className="inline-block w-auto p-3 py-2 mt-2 text-black font-medium transition-colors 
-        bg-white border rounded-md hover:bg-gray-100 ">entrar</Link>
-            <div className="mx-12">
-              <Popover>
-                <PopoverTrigger asChild>
-                
-                
-                <Image
-                  src="/user-icon.png"
-                  alt="icone"
-                  className=" w-12 h-12 min-w-12 shrink-0 object-cover"
-                  width={64}
-                  height={64}
-                />
-                </PopoverTrigger>
-                <PopoverContent className="w-fit flex flex-col text-center z-4000">
-                    <Link href="/" className="p-1 border-b border-gray-200 font-medium hover:text-gray-700 hover:bg-gray-100 transition-colors">Inicio</Link>
-                    <Link href="/about" className="p-1 font-medium border-b border-gray-200  hover:text-gray-700 hover:bg-gray-100 transition-colors">Sobre</Link>
-                    <Link href="/dashboard" className="p-1 font-medium border-b border-gray-200  hover:text-gray-700 hover:bg-gray-100 transition-colors">Dashboard</Link>
-                    <Link href="/requests" className="p-1 font-medium  hover:text-gray-700 hover:bg-gray-100 transition-colors">Requisições</Link>
-                </PopoverContent>
-              </Popover>
-            </div>
+            <EntrarButton />
+            <MenuPopover />
           </div>
         </header>
  

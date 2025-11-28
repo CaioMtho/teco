@@ -69,7 +69,7 @@ export default function DashboardProvider() {
                         <button className='bg-white h-full px-2 rounded-l-lg outline-1 outline-offset-2 outline-gray-300'><ArrowLeft /></button>
                     </SheetTrigger>
                 </div>
-                <SheetContent>
+                <SheetContent className=''>
                     <SheetHeader>
 
                     </SheetHeader>

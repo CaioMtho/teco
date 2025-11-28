@@ -37,7 +37,7 @@ export default function Home() {
 
 
 
-      <div className="flex flex-wrap sm:flex-nowrap sm:justify-around my-6">
+      <div className="flex flex-wrap justify-center sm:flex-nowrap sm:justify-around my-6">
 
       <div className="w-80 p-8 flex flex-col justify-center space-y-6">
         <div className="bg-gradient-to-l from-neutral-500/20 to-transparent"></div>

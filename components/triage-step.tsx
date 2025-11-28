@@ -96,7 +96,7 @@ export function TriageStep({ onComplete }: TriageStepProps) {
 
   if (showingSolutions) {
     return (
-      <Card className="p-6">
+      <Card className="p-2 sm:p-6">
         <div className="space-y-6">
           <div className="flex items-start gap-3">
             <AlertCircle className="w-6 h-6 text-yellow-600 mt-1 flex-shrink-0" />
@@ -155,7 +155,7 @@ export function TriageStep({ onComplete }: TriageStepProps) {
   }
 
   return (
-    <Card className="p-6">
+    <Card className="px-2 py-4 sm:p-6 overflow-hidden">
       <div className="space-y-6">
         <div>
           <div className="flex items-center gap-2 text-sm text-neutral-600 mb-2">
@@ -171,9 +171,9 @@ export function TriageStep({ onComplete }: TriageStepProps) {
               key={option.id}
               onClick={() => handleAnswer(option.id)}
               variant="outline"
-              className="h-auto p-4 justify-start text-left hover:bg-neutral-50 hover:border-neutral-400 transition-colors"
+              className="h-auto p-4 justify-start text-left text-wrap hover:bg-neutral-50 hover:border-neutral-400 transition-colors"
             >
-              <span className="text-neutral-900">{option.text}</span>
+              <span className="text-neutral-900 text-wrap">{option.text}</span>
             </Button>
           ))}
         </div>
