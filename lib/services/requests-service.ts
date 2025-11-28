@@ -60,6 +60,7 @@ export async function getRequests(
   if (error) throw error
 
   const rows = (data ?? []) as RequestRow[]
+
   const total = typeof count === 'number' ? count : rows.length
   const totalPages = safePerPage > 0 ? Math.ceil(total / safePerPage) : 0
 
@@ -79,11 +80,19 @@ export async function getRequests(
     photosByRequest.get(photo.request_id)!.push(photo)
   })
 
-  const dataWithAddress: RequestWithAddress[] = rows.map(r => ({
-    ...r,
-    address: primaryAddrByProfile.get(r.requester_id) ?? null,
-    photos: photosByRequest.get(r.id) ?? []
-  }))
+  const dataWithAddress: RequestWithAddress[] = rows.map(r => {
+    const addr = primaryAddrByProfile.get(r.requester_id) ?? null
+    // If request doesn't have lat/lon but address does, copy them to root level
+    const latitude = (r as any).latitude ?? addr?.latitude ?? null
+    const longitude = (r as any).longitude ?? addr?.longitude ?? null
+    return {
+      ...(r as any),
+      latitude,
+      longitude,
+      address: addr,
+      photos: photosByRequest.get(r.id) ?? []
+    }
+  })
 
   return {
     data: dataWithAddress,

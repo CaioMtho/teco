@@ -6,6 +6,14 @@ import { Icon, LatLng, divIcon } from 'leaflet';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { Card, CardHeader, CardTitle, CardDescription } from '../app/components/ui/card';
 import { Button } from '../app/components/ui/button';
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogFooter,
+    DialogClose,
+} from '../app/components/ui/dialog';
 import { MapPin, MessageCircle, Loader2, AlertCircle, User } from 'lucide-react';
 import 'leaflet/dist/leaflet.css';
 
@@ -17,6 +25,10 @@ interface RequestLocation {
     latitude: number | null;
     longitude: number | null;
     created_at: string;
+    address?: {
+        latitude: number | null;
+        longitude: number | null;
+    } | null;
 }
 
 interface InteractiveMapProps {
@@ -110,75 +122,46 @@ function LocationMarker({ onLocationFound }: { onLocationFound: (latlng: LatLng)
     
     useEffect(() => {
         if (hasLocatedRef.current) return;
-        
-        const tryGeolocation = async () => {
-            map.locate({
-                watch: false,
-                enableHighAccuracy: false,
-                timeout: 10000,
-                maximumAge: 300000 
-            });
 
-            timeoutRef.current = setTimeout(() => {
+        const tryNavigatorGeolocation = async () => {
+            if (!('geolocation' in navigator)) {
+                hasLocatedRef.current = true;
+                console.warn('Geolocalização não suportada pelo navegador, usando localização padrão');
+                onLocationFound(DEFAULT_LOCATION);
+                map.setView(DEFAULT_LOCATION, 13);
+                return;
+            }
+
+            try {
+                const position = await new Promise<GeolocationPosition>((resolve, reject) => {
+                    navigator.geolocation.getCurrentPosition(resolve, reject, {
+                        enableHighAccuracy: false,
+                        timeout: 10000,
+                        maximumAge: 300000,
+                    });
+                });
+
                 if (hasLocatedRef.current) return;
-                
-                if ('geolocation' in navigator) {
-                    navigator.geolocation.getCurrentPosition(
-                        (position) => {
-                            if (hasLocatedRef.current) return;
-                            hasLocatedRef.current = true;
-                            const latlng = new LatLng(position.coords.latitude, position.coords.longitude);
-                            onLocationFound(latlng);
-                            map.setView(latlng, 13);
-                        },
-                        (error) => {
-                            if (hasLocatedRef.current) return;
-                            hasLocatedRef.current = true;
-                            console.warn('Geolocalização falhou, usando localização padrão');
-                            onLocationFound(DEFAULT_LOCATION);
-                        },
-                        {
-                            enableHighAccuracy: false,
-                            timeout: 8000,
-                            maximumAge: 300000
-                        }
-                    );
-                } else {
-                    if (hasLocatedRef.current) return;
-                    hasLocatedRef.current = true;
-                    onLocationFound(DEFAULT_LOCATION);
-                }
-            }, 3000);
+                hasLocatedRef.current = true;
+                const latlng = new LatLng(position.coords.latitude, position.coords.longitude);
+                onLocationFound(latlng);
+                map.setView(latlng, 13);
+            } catch (err) {
+                // If browser's geolocation uses a network provider internally (e.g. Chromium calling Google's API)
+                // we avoid retrying against external services and fall back to the default location.
+                if (hasLocatedRef.current) return;
+                hasLocatedRef.current = true;
+                console.warn('Geolocalização falhou (provável provedor de rede com quota), usando localização padrão');
+                onLocationFound(DEFAULT_LOCATION);
+                map.setView(DEFAULT_LOCATION, 13);
+            }
         };
 
-        function onLocationFoundHandler(e: LocationFoundEvent) {
-            if (hasLocatedRef.current) return;
-            hasLocatedRef.current = true;
-            
-            if (timeoutRef.current) {
-                clearTimeout(timeoutRef.current);
-            }
-            
-            onLocationFound(e.latlng);
-            map.setView(e.latlng, 13);
-        }
-
-        function onLocationErrorHandler(e: LocationErrorEvent) {
-            // Não marca como located aqui, deixa o fallback do timeout funcionar
-            console.warn('Erro no map.locate, tentando fallback...');
-        }
-
-        map.on('locationfound', onLocationFoundHandler);
-        map.on('locationerror', onLocationErrorHandler);
-
-        tryGeolocation();
+        // Try navigator geolocation once; avoid map.locate to prevent repeated network geolocation calls
+        tryNavigatorGeolocation();
 
         return () => {
-            if (timeoutRef.current) {
-                clearTimeout(timeoutRef.current);
-            }
-            map.off('locationfound', onLocationFoundHandler);
-            map.off('locationerror', onLocationErrorHandler);
+            // nothing to cleanup for navigator.getCurrentPosition
         };
     }, [map, onLocationFound]);
 
@@ -206,7 +189,26 @@ export function InteractiveMap({ onStartChat }: InteractiveMapProps) {
         return R * c;
     };
 
-    const fetchNearbyRequests = async (latitude: number, longitude: number) => {
+        const fetchNearbyRequests = async (latitude: number, longitude: number) => {
+            try {
+                if (abortControllerRef.current) {
+                    abortControllerRef.current.abort();
+                }
+
+                abortControllerRef.current = new AbortController();
+
+                const response = await fetch('/api/requests', {
+                    signal: abortControllerRef.current.signal
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Erro ${response.status}: ${response.statusText}`);
+                }
+
+                const json = await response.json();
+                const data: any[] = Array.isArray(json) ? json : (Array.isArray((json as any).data) ? (json as any).data : [])
+
+                const fetchNearbyRequests = async (latitude: number, longitude: number) => {
         try {
             if (abortControllerRef.current) {
                 abortControllerRef.current.abort();
@@ -222,31 +224,34 @@ export function InteractiveMap({ onStartChat }: InteractiveMapProps) {
                 throw new Error(`Erro ${response.status}: ${response.statusText}`);
             }
 
-            const data: RequestLocation[] = await response.json();
-            
-            const nearby = data.filter((request) => {
-                if (
-                    request.latitude === null || 
-                    request.longitude === null ||
-                    typeof request.latitude !== 'number' ||
-                    typeof request.longitude !== 'number' ||
-                    isNaN(request.latitude) ||
-                    isNaN(request.longitude)
-                ) {
-                    return false;
-                }
+            const json = await response.json();
+            const data: any[] = Array.isArray(json) ? json : (Array.isArray((json as any).data) ? (json as any).data : []);
 
-                const distance = calculateDistance(
-                    latitude, 
-                    longitude, 
-                    request.latitude, 
-                    request.longitude
-                );
-                
-                return distance <= SEARCH_RADIUS_KM;
+            // Normalize coords (mantém a lógica original)
+            const all = data.map(req => {
+                if (req.latitude == null && req.address?.latitude != null) {
+                    req.latitude = req.address.latitude;
+                }
+                if (req.longitude == null && req.address?.longitude != null) {
+                    req.longitude = req.address.longitude;
+                }
+                return req;
             });
 
-            setRequests(nearby);
+            setRequests(all);
+
+        } catch (err) {
+            if (err instanceof Error && err.name === 'AbortError') {
+                return;
+            }
+
+            console.error('Erro ao buscar requisições:', err);
+            setError('Não foi possível carregar as requisições próximas');
+        } finally {
+            setLoading(false);
+        }
+    };
+
         } catch (err) {
             if (err instanceof Error && err.name === 'AbortError') {
                 return;
@@ -278,6 +283,19 @@ export function InteractiveMap({ onStartChat }: InteractiveMapProps) {
             onStartChat(requestId);
         }
     };
+
+    const [selectedRequest, setSelectedRequest] = useState<RequestLocation | null>(null);
+    const [openDetails, setOpenDetails] = useState(false);
+
+    const openRequestDetails = (req: RequestLocation) => {
+        setSelectedRequest(req);
+        setOpenDetails(true);
+    }
+
+    const closeRequestDetails = () => {
+        setSelectedRequest(null);
+        setOpenDetails(false);
+    }
 
     return (
         <div className="w-full h-full relative">
@@ -333,20 +351,52 @@ export function InteractiveMap({ onStartChat }: InteractiveMapProps) {
                                             year: 'numeric',
                                         })}
                                     </div>
-                                    <Button
-                                        size="sm"
-                                        className="w-full"
-                                        onClick={() => handleStartChat(request.id)}
-                                    >
-                                        <MessageCircle className="h-4 w-4 mr-2" />
-                                        Iniciar Chat
-                                    </Button>
+                                    <div className="flex gap-2">
+                                        <Button
+                                            size="sm"
+                                            className="flex-1"
+                                            onClick={() => handleStartChat(request.id)}
+                                        >
+                                            <MessageCircle className="h-4 w-4 mr-2" />
+                                            Iniciar Chat
+                                        </Button>
+                                        <Button
+                                            size="sm"
+                                            variant="outline"
+                                            onClick={() => openRequestDetails(request)}
+                                        >
+                                            Ver detalhes
+                                        </Button>
+                                    </div>
                                 </div>
                             </Popup>
                         </Marker>
                     )
                 ))}
             </MapContainer>
+
+                {/* Request details dialog (use shared Dialog for consistent UI) */}
+                <Dialog open={openDetails} onOpenChange={(v) => { if (!v) closeRequestDetails(); setOpenDetails(v); }}>
+                    <DialogContent className="max-w-2xl w-full mx-4 sm:mx-auto">
+                        {selectedRequest ? (
+                            <div className="p-4">
+                                <div className="flex flex-col sm:flex-row items-start justify-between gap-4">
+                                    <div className="flex-1 min-w-0">
+                                        <h3 className="text-lg sm:text-xl font-semibold break-words">{selectedRequest.title}</h3>
+                                        <p className="text-sm text-neutral-600 mt-2 break-words">{selectedRequest.description}</p>
+                                        <div className="text-xs text-neutral-500 mt-3">Solicitado em: {new Date(selectedRequest.created_at).toLocaleString('pt-BR')}</div>
+                                    </div>
+                                    <div className="flex-shrink-0 flex flex-col gap-2 w-full sm:w-auto">
+                                        <DialogClose asChild>
+                                            <Button variant="ghost" className="w-full sm:w-auto">Fechar</Button>
+                                        </DialogClose>
+                                        <Button onClick={() => { handleStartChat(selectedRequest.id); closeRequestDetails(); }} className="w-full sm:w-auto">Iniciar Chat</Button>
+                                    </div>
+                                </div>
+                            </div>
+                        ) : null}
+                    </DialogContent>
+                </Dialog>
 
             {error && (
                 <div className="absolute top-4 left-4 z-[1000] bg-amber-50 border border-amber-200 rounded-lg shadow-lg p-3 max-w-xs">

@@ -117,3 +117,15 @@ export async function updateAddress(
   if (error) throw error
   return data
 }
+
+export async function deleteAddress(
+  supabase: SupabaseClient<Database>,
+  id: string
+): Promise<void> {
+  const { error } = await supabase
+    .from('addresses')
+    .delete()
+    .eq('id', id)
+
+  if (error) throw error
+}

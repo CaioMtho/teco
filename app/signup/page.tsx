@@ -15,6 +15,10 @@ export default function SignUpPage() {
     email: '',
     password: '',
     confirmPassword: '',
+    isProvider: false,
+    providerBio: '',
+    providerPrice: '',
+    providerSkills: '',
     street: '',
     number: '',
     neighborhood: '',
@@ -32,6 +36,10 @@ export default function SignUpPage() {
   const handleChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
+
+  const handleToggleProvider = () => {
+    setFormData(prev => ({ ...prev, isProvider: !prev.isProvider }))
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -58,6 +66,12 @@ export default function SignUpPage() {
           name: formData.name,
           email: formData.email,
           password: formData.password,
+          role: formData.isProvider ? 'provider' : 'requester',
+          provider: formData.isProvider ? {
+            bio: formData.providerBio || null,
+            price_base: formData.providerPrice ? Number(formData.providerPrice) : null,
+            skills: formData.providerSkills ? formData.providerSkills.split(',').map(s => s.trim()).filter(Boolean) : null
+          } : undefined,
           address: {
             street: formData.street,
             number: formData.number,
@@ -125,6 +139,59 @@ export default function SignUpPage() {
                   disabled={loading}
                 />
               </div>
+
+              <div className="flex items-center gap-2 mt-2">
+                <input
+                  id="isProvider"
+                  type="checkbox"
+                  checked={formData.isProvider}
+                  onChange={handleToggleProvider}
+                  disabled={loading}
+                  className="h-4 w-4"
+                />
+                <Label htmlFor="isProvider" className="m-0">Vou prestar suporte</Label>
+              </div>
+
+              {formData.isProvider && (
+                <div className="space-y-2 mt-3 p-3 border rounded-md bg-white">
+                  <h4 className="font-medium">Informações como Provider</h4>
+                  <div className="space-y-2">
+                    <Label htmlFor="providerBio">Bio</Label>
+                    <Input
+                      id="providerBio"
+                      type="text"
+                      placeholder="Fale sobre sua experiência"
+                      value={formData.providerBio}
+                      onChange={(e) => handleChange('providerBio', e.target.value)}
+                      disabled={loading}
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="space-y-2">
+                      <Label htmlFor="providerPrice">Preço base (R$)</Label>
+                      <Input
+                        id="providerPrice"
+                        type="number"
+                        placeholder="Ex: 80"
+                        value={formData.providerPrice}
+                        onChange={(e) => handleChange('providerPrice', e.target.value)}
+                        disabled={loading}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="providerSkills">Habilidades (vírgula)</Label>
+                      <Input
+                        id="providerSkills"
+                        type="text"
+                        placeholder="Ex: Hardware,Software,Redes"
+                        value={formData.providerSkills}
+                        onChange={(e) => handleChange('providerSkills', e.target.value)}
+                        disabled={loading}
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">

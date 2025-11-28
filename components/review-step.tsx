@@ -48,6 +48,9 @@ export function ReviewStep({
           country: locationData.country,
           latitude: locationData.latitude || null,
           longitude: locationData.longitude || null,
+          // Link to requester's profile as primary address
+          is_primary: true,
+          address_type: 'service',
         }),
       });
 
@@ -55,6 +58,8 @@ export function ReviewStep({
         const errorData = await addressResponse.json();
         throw new Error(errorData.message || 'Erro ao salvar endereço');
       }
+
+      const addressData = await addressResponse.json();
 
       const triagePrefix = formatTriageForDescription(triageData);
       const fullDescription = triagePrefix + description;
