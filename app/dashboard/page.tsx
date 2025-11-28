@@ -42,7 +42,7 @@ export default function Page() {
     if (error) {
       showError('Erro ao sair', error.message)
     } else {
-      showSuccess('Sess�o encerrada', 'Voc� foi desconectado com sucesso.')
+      showSuccess('Sessão encerrada', 'Você foi desconectado com sucesso.')
       window.location.href = '/login'
     }
   }
@@ -50,7 +50,7 @@ export default function Page() {
   const confirmSignOut = () => {
     showConfirm(
       'Deseja sair?',
-      'Tem certeza que deseja encerrar sua sess�o?',
+      'Tem certeza que deseja encerrar sua sessão?',
       handleSignOut,
       'Sair',
       'Cancelar'
@@ -103,7 +103,7 @@ export default function Page() {
 
         <div className='flex-col mb-12 ms-2 px-2 sm:ms-6'>
           <div className='justify-self-center self-center shrink my-12 ms-0 sm:ms-6 h-auto lg:h-auto w-auto text-sm text-center sm:text-lg text-wrap'>
-            se conecte com t�cnicos de inform�tica qualificados para resolver os seus problemas
+            se conecte com técnicos de informática qualificados para resolver os seus problemas
           </div>
 
           <div className='mt-24'>
