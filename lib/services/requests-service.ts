@@ -79,13 +79,13 @@ export async function getRequests(
     photosByRequest.get(photo.request_id)!.push(photo)
   })
 
-  const dataWithAddress: RequestWithAddress[] = rows.map(r => ({
+  const dataWithAddress: RequestWithAddress[] = rows.map(r => {
     const addr = primaryAddrByProfile.get(r.requester_id) ?? null
     // If request doesn't have lat/lon but address does, copy them to root level
-    const latitude = r.latitude ?? addr?.latitude ?? null
-    const longitude = r.longitude ?? addr?.longitude ?? null
+    const latitude = (r as any).latitude ?? addr?.latitude ?? null
+    const longitude = (r as any).longitude ?? addr?.longitude ?? null
     return {
-      ...r,
+      ...(r as any),
       latitude,
       longitude,
       address: addr,
