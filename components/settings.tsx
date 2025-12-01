@@ -41,7 +41,7 @@ export default function Settings() {
 
           <div className="">
           <form>
-
+              <ScrollArea className="h-xl rounded-md border p-4">
                 <div className="space-y-4">
                   <h3 className="font-semibold text-lg">Dados Pessoais</h3>
                   
@@ -173,10 +173,10 @@ export default function Settings() {
                 </div>
 
                 <Button type="submit" className="mt-2 w-full text-white">
-                  atualizar
+                  Atualizar
                 </Button>
 
-
+              </ScrollArea>
             </form>
           </div>
 

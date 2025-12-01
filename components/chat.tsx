@@ -41,7 +41,7 @@ export default function Chat() {
 
 
           <div className="">
-            <ScrollArea className="h-xl w-[775px] rounded-md border p-4">
+            <ScrollArea className="h-xl rounded-md border p-4">
 
               <Message sender="sender"> Lorem</Message>
               <Message sender="sender"> Lorem ipsum dolor sit, amet consectetur adipisicing elit. Deleniti at sequi, doloremque nisi mollitia porro, neque reiciendis rerum quo ea non distinctio aliquam quod culpa. Officia, quidem? At, omnis quibusdam.</Message>
