@@ -57,7 +57,7 @@ export default function RootLayout({
             <input type="search" className="h-10 me-12 bg-gray-300 text-gray-800 border-0 rounded-lg " name="search"></input>
             
             <Link href="/login" className="inline-block w-auto p-3 py-2 mt-2 text-black font-medium transition-colors 
-        bg-white border rounded-md hover:bg-gray-100 ">entrar</Link>
+        bg-white border rounded-md hover:bg-gray-100 ">Entrar</Link>
             <div className="mx-12">
               <Popover>
                 <PopoverTrigger asChild>

@@ -57,7 +57,7 @@ export default function Page() {
             width={64}
             height={64}
           />
-          <h2 className='text-2xl'>nome do usuário</h2>
+          <h2 className='text-2xl'>Nome do usuário</h2>
           <div className='flex justify-center'>
 
               <Dialog>
@@ -84,19 +84,19 @@ export default function Page() {
       </div>
       <div className='flex-col mb-12 ms-6 h-lh'>
         <div className='justify-self-center self-center my-12 ms-6 text-md sm:text-lg text-wrap'>
-           se conecte com técnicos de informática qualificados para resolver os seus problemas
+           Se conecte com técnicos de informática qualificados para resolver os seus problemas
 
         </div>
         <div className='self-end mt-24'>
-          <p className='text-gray-700'>mensagens recentes:</p>
+          <p className='text-gray-700'>Mensagens recentes:</p>
           <div className='flex flex-wrap'>
             <div className='bg-gray-200 w-md h-32 border rounded-md'>
               <Dialog>
                 <form>
                   <DialogTrigger asChild>
                     <button  className="flex flex-col p-2 w-full h-32 bg-white text-black rounded-md border justify-start items-start border-gray-300 hover:bg-gray-100 transition-colors">
-                      <h3 className='text-gray-800'>nome de usuario</h3>
-                      <p className='text-gray-500'>mensagem recente</p>
+                      <h3 className='text-gray-800'>Nome de usuario</h3>
+                      <p className='text-gray-500'>Mensagem recente</p>
                     </button>
                   </DialogTrigger>
                    <Chat/>
@@ -109,8 +109,8 @@ export default function Page() {
                 <form>
                   <DialogTrigger asChild>
                     <button  className="flex flex-col p-2 w-full h-32 bg-white text-black rounded-md border justify-start items-start border-gray-300 hover:bg-gray-100 transition-colors">
-                      <h3 className='text-gray-800'>nome de usuario</h3>
-                      <p className='text-gray-500'>mensagem recente</p>
+                      <h3 className='text-gray-800'>Nome de usuario</h3>
+                      <p className='text-gray-500'>Mensagem recente</p>
                     </button>
                   </DialogTrigger>
                    <Chat/>

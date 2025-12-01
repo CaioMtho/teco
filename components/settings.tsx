@@ -41,7 +41,7 @@ export default function Settings() {
 
           <div className="">
           <form>
-              <ScrollArea className="h-xl rounded-md border p-4">
+            <ScrollArea className="h-xl rounded-md border p-4">
                 <div className="space-y-4">
                   <h3 className="font-semibold text-lg">Dados Pessoais</h3>
                   

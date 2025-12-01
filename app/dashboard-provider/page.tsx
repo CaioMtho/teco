@@ -81,7 +81,7 @@ export default function DashboardProvider() {
                                 width={64}
                                 height={64}
                               />
-                              <h2 className='text-2xl text-center'>nome do usuário</h2>
+                              <h2 className='text-2xl text-center'>Nome do usuário</h2>
                               <div className='flex items-stretch mt-6'>
                     
                                   <Dialog>
