@@ -127,6 +127,12 @@ export default function DashboardProvider() {
                 </Dialog>
               </div>
 
+              <div className="mt-4">
+                <Button asChild>
+                  <a href="/requests">Requisições</a>
+                </Button>
+              </div>
+
               <div className="mt-6 flex items-center">
                 <Search className="m-1" />
                 <input

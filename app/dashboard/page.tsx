@@ -12,6 +12,7 @@ import {
   Dialog,
   DialogTrigger,
 } from "@/components/ui/dialog"
+import { Button } from '@/components/ui/button'
 
 export default function Page() {
   const { modalState, closeModal, showConfirm, showSuccess, showError } = useModal()
@@ -97,6 +98,11 @@ export default function Page() {
                   <Settings />
                 </form>
               </Dialog>
+            </div>
+            <div className="mt-4 flex justify-center">
+              <Button asChild>
+                <a href="/requests" className="px-4 py-2">Requisições</a>
+              </Button>
             </div>
           </div>
         </div>
