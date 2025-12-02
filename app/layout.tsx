@@ -14,8 +14,7 @@ import { supabase } from 'lib/supabase/client'
 
 import EntrarButton from "../components/menu/entrar-button"
 import MenuPopover from "../components/menu/menuPopover"
-
-
+import ClarityTracker  from "@/../components/clarity-tracker"
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -31,8 +30,6 @@ export const metadata: Metadata = {
   description: "Plataforma Marketplace para Serviços de TI",
 };
 
-
-
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -41,30 +38,31 @@ export default function RootLayout({
 
   return (
 
-    <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased `}
-      >
-        <header className="w-auto bg-neutral-900 text-white z-9000">
-          <div className="px-5 shadow-sm flex items-center z-9000">
-            <Link href="/">
-              <Image
-                src="/teco-logo-escuro-sem-fundo.png"
-                alt="logo"
-                width={100}
-                height={100}
-              />
-            </Link>
+      <html lang="en">
+        <body
+          className={`${geistSans.variable} ${geistMono.variable} antialiased `}
+        >
 
+          <ClarityTracker />
 
+          <header className="w-auto bg-neutral-900 text-white z-9000">
+            <div className="px-5 shadow-sm flex items-center z-9000">
+              <Link href="/">
+                <Image
+                  src="/teco-logo-escuro-sem-fundo.png"
+                  alt="logo"
+                  width={100}
+                  height={100}
+                />
+              </Link>
 
-            
-            <EntrarButton />
-            <MenuPopover />
-          </div>
-        </header>
- 
-        {children}
+              <EntrarButton />
+              <MenuPopover />
+            </div>
+          </header>
+
+          {children}
+
         
         <footer className="bg-gray-300 py-12 text-gray-600" aria-labelledby="footer-heading">
           <div className="max-w-7xl mx-auto px-4" id="footer-heading">
